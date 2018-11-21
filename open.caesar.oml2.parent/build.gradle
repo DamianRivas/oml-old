@@ -18,6 +18,7 @@ subprojects {
 	apply from: "${rootDir}/gradle/source-layout.gradle"
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 	apply plugin: 'eclipse'
+	apply plugin: 'idea'
 	
 	group = 'open.caesar.oml2'
 	version = '1.0.0-SNAPSHOT'
