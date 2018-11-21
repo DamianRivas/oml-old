@@ -1,0 +1,8 @@
+.DS_Store
+bin
+src-gen
+xtend-gen
+build
+.gradle
+.launch
+.antlr-generator-*.jar

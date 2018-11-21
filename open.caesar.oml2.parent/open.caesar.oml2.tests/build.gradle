@@ -1,0 +1,12 @@
+dependencies {
+	compile project(':open.caesar.oml2')
+	compile project(':open.caesar.oml2.model')
+	testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine:5.1.0"
+	testCompile "org.eclipse.xtext:org.eclipse.xtext.testing:${xtextVersion}"
+	testCompile "org.eclipse.xtext:org.eclipse.xtext.xbase.testing:${xtextVersion}"
+}
+
+test {
+	useJUnitPlatform()
+}
