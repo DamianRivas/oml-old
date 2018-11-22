@@ -1,4 +1,4 @@
-# oml2-language-server
+# OML2 language Server
 A language server for OML2 developed with Xtext
 
 ## Build
