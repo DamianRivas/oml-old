@@ -8,4 +8,4 @@ before_script:
    - cd open.caesar.oml2.parent
 
 script:
-  - ./gradlew build --scan -s
+  - ./gradlew build
