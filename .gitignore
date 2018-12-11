@@ -1,7 +1,7 @@
 .idea
 .DS_Store
 bin
-src-gen
+xtext-gen
 xtend-gen
 build
 .gradle

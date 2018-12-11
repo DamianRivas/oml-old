@@ -13,7 +13,7 @@ Workflow {
 			projectName = "open.caesar.oml2.model"
 		}
 	}
-	
+
 	component = XtextGenerator {
 		configuration = {
 			project = StandardProjectConfig {
@@ -25,6 +25,7 @@ Workflow {
 				genericIde = {
 					enabled = true
 				}
+				mavenLayout = true
 			}
 			code = {
 				encoding = "UTF-8"
@@ -35,7 +36,7 @@ Workflow {
 		language = StandardLanguage {
 			name = "open.caesar.oml2.Oml2"
 			fileExtensions = "oml2"
-			referencedResource = "platform:/resource/open.caesar.oml2.model/src/Oml2.xcore"
+			referencedResource = "platform:/resource/open.caesar.oml2.model/src/main/java/open/caesar/oml2/Oml2.xcore"
 			
 			fragment = ecore2xtext.Ecore2XtextValueConverterServiceFragment2 auto-inject {}
 

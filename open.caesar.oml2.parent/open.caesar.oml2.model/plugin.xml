@@ -7,7 +7,7 @@
 <plugin
       name="%pluginName"
       id="open.caesar.oml2.model"
-      version="1.0.0"
+      version="0.1.0"
       provider-name="%providerName">
 
    <requires>
@@ -27,8 +27,7 @@
       <!-- @generated Oml2 -->
       <package
             uri="http://open.caesar/oml2/Oml2"
-            class="open.caesar.oml2.Oml2Package"
-            genModel="src/Oml2.xcore"/>
+            class="open.caesar.oml2.Oml2Package"/>
    </extension>
 
 </plugin>
