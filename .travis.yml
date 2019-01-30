@@ -5,13 +5,13 @@ jdk:
 - oraclejdk8
 
 before_script:
-- cd open.caesar.oml2.parent
+- cd open.caesar.oml.parent
 
 script:
   - ./gradlew shadowJar
 
 before_deploy:
-  - export JAR_FILE=$(ls */build/libs/oml2-language-server-*.jar)
+  - export JAR_FILE=$(ls */build/libs/oml-language-server-*.jar)
   
 deploy:
   provider: releases
@@ -23,4 +23,4 @@ deploy:
   draft: true
   on:
     tags: true
-    repo: open-caesar/oml2-language-server
+    repo: open-caesar/oml-language-server

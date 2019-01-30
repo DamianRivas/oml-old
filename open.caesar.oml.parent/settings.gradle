@@ -1,0 +1,4 @@
+include 'open.caesar.oml'
+include 'open.caesar.oml.ide'
+include 'open.caesar.oml.model'
+include 'open.caesar.oml.diagram'

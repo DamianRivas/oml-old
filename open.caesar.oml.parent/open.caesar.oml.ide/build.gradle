@@ -1,0 +1,8 @@
+ext.title = 'Oml Language Server'
+description = 'Generic IDE services for Oml offered via the Language Server Protocol'
+
+dependencies {
+	compile project(':open.caesar.oml')
+	compile "org.eclipse.xtext:org.eclipse.xtext.ide:${versions.xtext}"
+	compile "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${versions.xtext}"
+}

@@ -1,0 +1,49 @@
+@Ecore(
+	nsPrefix="oml",
+	nsURI="http://open.caesar/oml/Oml"
+)
+@GenModel(
+    bundleManifest="false",
+    modelDirectory="open.caesar.oml.model/build/xcore/main", 
+    complianceLevel="8.0"
+)
+package open.caesar.oml
+
+
+class Extent {
+	contains Module[] modules
+}
+
+abstract class Module {
+	String iri
+}
+
+abstract class ModuleStatement {}
+
+class Terminology extends Module {
+	contains TerminologyStatement[] statements
+}
+
+abstract class TerminologyStatement extends ModuleStatement {
+}
+
+abstract class Term extends TerminologyStatement {
+	String name
+}
+
+abstract class Axiom extends TerminologyStatement {
+}
+
+abstract class Entity extends Term {
+}
+
+class Aspect extends Entity {
+}
+
+class Concept extends Entity {
+}
+
+class Relation extends Entity {
+	refers Entity source
+	refers Entity target
+}
