@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oml:Terminology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oml="http://opencaesar.io/Oml" name="rdf" iri="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <imports xsi:type="oml:TerminologyExtension" importURI="../../2001/XMLSchema.oml"/>
+  <statements xsi:type="oml:AnnotationProperty" name="about"/>
+  <statements xsi:type="oml:Scalar" name="PlainLiteral"/>
+  <statements xsi:type="oml:Scalar" name="XMLLiteral"/>
+</oml:Terminology>

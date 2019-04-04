@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oml:Terminology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oml="http://opencaesar.io/Oml" name="owl" iri="http://www.w3.org/2002/07/owl#">
+  <imports xsi:type="oml:TerminologyExtension" importURI="../../1999/02/22-rdf-syntax-ns.oml"/>
+  <imports xsi:type="oml:TerminologyExtension" importURI="../../2000/01/rdf-schema.oml"/>
+  <statements xsi:type="oml:AnnotationProperty" name="backwardCompatibleWith"/>
+  <statements xsi:type="oml:AnnotationProperty" name="deprecated"/>
+  <statements xsi:type="oml:AnnotationProperty" name="incompatibleWith"/>
+  <statements xsi:type="oml:AnnotationProperty" name="priorVersion"/>
+  <statements xsi:type="oml:AnnotationProperty" name="versionInfo"/>
+  <statements xsi:type="oml:StringScalar" name="rational" pattern="/[\-+]?[0-9]+\\/[1-9][0-9]*/">
+    <specializations specializedTerm="//@statements.6"/>
+  </statements>
+  <statements xsi:type="oml:StringScalar" name="real">
+    <specializations>
+      <specializedTerm xsi:type="oml:Scalar" href="../../2001/XMLSchema.oml.xmi#//@statements.0"/>
+    </specializations>
+  </statements>
+</oml:Terminology>

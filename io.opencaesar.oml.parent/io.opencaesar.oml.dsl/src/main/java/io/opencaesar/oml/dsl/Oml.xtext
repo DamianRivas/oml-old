@@ -1,0 +1,712 @@
+grammar io.opencaesar.oml.dsl.Oml hidden(WS, ML_COMMENT, SL_COMMENT)
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://opencaesar.io/Oml" 
+
+Graph:
+	Terminology |
+	Description;
+
+Element:
+	Annotation |
+	AnnotatedElement |
+	GraphImport |
+	Instance |
+	LiteralValue |
+	Predicate;
+
+Annotation:
+	'@' property=[AnnotationProperty|Reference] '=' value=LiteralValue;
+
+AnnotatedElement:
+	NamedElement |
+	NamedElementReference |
+	//GraphStatement |
+	->Axiom |
+	Assertion;
+
+NamedElement:
+	Graph |
+	GraphMember;
+
+Terminology:
+	annotations+=Annotation*
+	kind=TerminologyKind 'terminology' iri=IRI 'as' name=ID '{'
+		imports+=TerminologyImport*
+		statements+=TerminologyStatement*
+	'}';
+
+enum TerminologyKind:
+	Open = 'open' | 
+	Closed = 'closed';
+
+Description:
+	annotations+=Annotation*
+	kind=DescriptionKind 'description' iri=IRI 'as' name=ID '{'
+		imports+=DescriptionImport*
+		statements+=DescriptionStatement*
+	'}';
+
+enum DescriptionKind:
+	Final = 'final' | 
+	Partial = 'partial';
+
+GraphMember:
+	TerminologyMember |
+	DescriptionMember;
+
+TerminologyMember:
+	Term |
+	Rule |
+	->UnidirectionalRelationship;
+
+Term:
+	CharacterizableTerm |
+	->UnreifiedRelationship |
+	ScalarRange |
+	Property;
+
+CharacterizableTerm:
+	Entity |
+	Structure;
+
+Entity:
+	Aspect |
+	Concept |
+	ReifiedRelationship;
+
+Aspect:
+	annotations+=Annotation*
+	'aspect' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		restrictions+=EntityRestrictionAxiom*
+	'}')?;
+
+Concept:
+	annotations+=Annotation*
+	'concept' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		restrictions+=EntityRestrictionAxiom*
+	'}')?;
+
+ReifiedRelationship:
+	annotations+=Annotation*
+	'reified' 'relationship' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
+		'source' source=[Entity|Reference]
+		'target' target=[Entity|Reference]
+		forward=ForwardRelationship
+		(inverse=InverseRelationship)?
+		((functional?='functional')? &
+		 (inverseFunctional?='inverseFunctional')? &
+		 (symmetric?='symmetric')? &
+		 (asymmetric?='asymmetric')? &
+		 (reflexive?='reflexive')? &
+		 (irreflexive?='irreflexive')? &
+		 (transitive?='transitive')?)
+		restrictions+=EntityRestrictionAxiom*
+	'}';
+
+Structure:
+	annotations+=Annotation*
+	'structure' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+	
+Relationship:
+	UnreifiedRelationship |
+	ReifiedRelationship;
+
+UnreifiedRelationship:
+	annotations+=Annotation*
+	'unreified' 'relationship' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
+		'source' source=[Entity|Reference]
+		'target' target=[Entity|Reference]
+		((functional?='functional')? &
+		 (inverseFunctional?='inverseFunctional')? &
+		 (symmetric?='symmetric')? &
+		 (asymmetric?='asymmetric')? &
+		 (reflexive?='reflexive')? &
+		 (irreflexive?='irreflexive')? &
+		 (transitive?='transitive')?)
+	'}';
+
+ScalarRange:
+	Scalar |
+    CharArrayScalar |  
+	NumericScalar |
+	TimeScalar |
+    EnumerationScalar;
+
+Scalar:
+	annotations+=Annotation*
+	'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+
+CharArrayScalar:
+	BinaryScalar |
+	PatternScalar;
+
+
+BinaryScalar:
+	annotations+=Annotation*
+	'binary' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('length' length=NonNegativeInteger)? &
+		 ('minLength' minLength=NonNegativeInteger)? &
+		 ('maxLength' maxLength=NonNegativeInteger)?)
+	'}')?;
+
+PatternScalar:
+	IRIScalar |
+	PlainLiteralScalar |
+	StringScalar;
+	
+IRIScalar:
+	annotations+=Annotation*
+	'iri' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('length' length=NonNegativeInteger)? &
+		 ('minLength' minLength=NonNegativeInteger)? &
+		 ('maxLength' maxLength=NonNegativeInteger)? &
+		 ('pattern' pattern=STRING)?)
+	'}')?;
+
+PlainLiteralScalar:
+	annotations+=Annotation*
+	'literal' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('length' length=NonNegativeInteger)? &
+		 ('minLength' minLength=NonNegativeInteger)? &
+		 ('maxLength' maxLength=NonNegativeInteger)? &
+		 ('pattern' pattern=STRING)? &
+		 ('language' language=LANG_TAG)?)
+	'}')?;
+
+StringScalar:
+	annotations+=Annotation*
+	'string' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('length' length=NonNegativeInteger)? &
+		 ('minLength' minLength=NonNegativeInteger)? &
+		 ('maxLength' maxLength=NonNegativeInteger)? &
+		 ('pattern' pattern=STRING)?)
+	'}')?;
+
+NumericScalar:
+	annotations+=Annotation*
+	'numeric' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('minInclusive' minInclusive=LiteralNumber)? &
+		 ('minExclusive' minExclusive=LiteralNumber)? &
+		 ('maxInclusive' maxInclusive=LiteralNumber)? &
+		 ('maxExclusive' maxExclusive=LiteralNumber)?)
+	'}')?;
+
+TimeScalar:
+	annotations+=Annotation*
+	'time' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		(('minInclusive' minInclusive=LiteralDateTime)? &
+		 ('minExclusive' minExclusive=LiteralDateTime)? &
+		 ('maxInclusive' maxInclusive=LiteralDateTime)? &
+		 ('maxExclusive' maxExclusive=LiteralDateTime)?)
+	'}')?;
+
+EnumerationScalar:
+	annotations+=Annotation*
+	'enum' 'scalar' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		literals+=LiteralValue (',' literals+=LiteralValue)*
+	'}')?;
+
+Property:
+	CharacterizationProperty |
+	AnnotationProperty;
+
+CharacterizationProperty:
+	StructuredProperty |
+	ScalarProperty;
+
+StructuredProperty:
+	annotations+=Annotation*
+	'structured' 'property' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
+		'domain' domain=[CharacterizableTerm|Reference]
+		'range' range=[Structure|Reference]
+		(functional?='functional')?
+	'}';
+
+ScalarProperty:
+	annotations+=Annotation*
+	'scalar' 'property' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
+		'domain' domain=[CharacterizableTerm|Reference]
+		'range' range=[ScalarRange|Reference]
+		(functional?='functional')?
+	'}';
+	
+AnnotationProperty:
+	annotations+=Annotation*
+	'annotation' 'property' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+ 
+Rule:
+	annotations+=Annotation*
+	'rule' name=ID '{'
+		antecedent+=Predicate ('&' antecedent+=Predicate)* '=>' consequent=UnidirectionalRelationshipPredicate
+	'}';
+
+UnidirectionalRelationship:
+	UnreifiedRelationship |
+	ReifiedUnidirectionalRelationship;
+	
+ReifiedUnidirectionalRelationship:	
+	ForwardRelationship |
+	InverseRelationship;
+
+ForwardRelationship:
+	annotations+=Annotation*
+	'forward' name=ID;
+
+InverseRelationship:
+	annotations+=Annotation*
+	'inverse' name=ID;
+
+DescriptionMember:
+	NamedInstance;
+
+NamedInstance:
+	ConceptInstance |
+	ReifiedRelationshipInstance;
+
+ConceptInstance:
+	annotations+=Annotation*
+	'concept' 'instance' name=ID ':' types+=ConceptInstanceTypeAssertion (',' types+=ConceptInstanceTypeAssertion)* ('{'
+		propertyValues+=InstancePropertyValueAssertion*
+	'}')?;
+
+ReifiedRelationshipInstance:
+	annotations+=Annotation*
+	'relationship' 'instance' name=ID ':' types+=ReifiedRelationshipInstanceTypeAssertion (',' types+=ReifiedRelationshipInstanceTypeAssertion)*  ('{'
+		'source' source=[NamedInstance|Reference]
+		'target' target=[NamedInstance|Reference]
+		propertyValues+=InstancePropertyValueAssertion*
+	'}')?;
+ 
+NamedElementReference:
+	GraphMemberReference;
+
+GraphMemberReference:
+	TerminologyMemberReference |
+	DescriptionMemberReference;
+
+TerminologyMemberReference:
+	TermReference |
+	->UnidirectionalRelationshipReference |
+	RuleReference;
+	
+TermReference:
+	EntityReference |
+	UnreifiedRelationshipReference |
+	StructureReference |
+	ScalarRangeReference |
+	StructuredPropertyReference |
+	ScalarPropertyReference;
+
+EntityReference:
+	AspectReference |
+	ConceptReference |
+	ReifiedRelationshipReference;
+		
+AspectReference:
+	annotations+=Annotation*
+	'ref' 'aspect' aspect=[Aspect|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		restrictions+=EntityRestrictionAxiom*
+	'}')?;
+
+ConceptReference:
+	annotations+=Annotation*
+	'ref' 'concept' concept=[Concept|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		restrictions+=EntityRestrictionAxiom*
+	'}')?;
+
+ReifiedRelationshipReference:
+	annotations+=Annotation*
+	'ref' 'reified' 'relationship' relationship=[ReifiedRelationship|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+		restrictions+=EntityRestrictionAxiom*
+	'}')?;
+
+UnreifiedRelationshipReference:
+	annotations+=Annotation*
+	'ref' 'unreified' 'relationship' relationship=[UnreifiedRelationship|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+
+StructureReference:
+	annotations+=Annotation*
+	'ref' 'structure' structure=[Structure|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+
+ScalarRangeReference:
+	annotations+=Annotation*
+	'ref' 'scalar' scalar=[ScalarRange|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+	
+StructuredPropertyReference:
+	annotations+=Annotation*
+	'ref' 'structured' 'property' property=[StructuredProperty|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+
+ScalarPropertyReference:
+	annotations+=Annotation*
+	'ref' 'scalar' 'property' property=[ScalarProperty|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
+	'}')?;
+
+UnidirectionalRelationshipReference:
+	UnreifiedRelationshipReference |
+	ReifiedUnidirectionalRelationshipReference;
+
+ReifiedUnidirectionalRelationshipReference:
+	annotations+=Annotation* 'ref' 'relationship' relationship=[ReifiedUnidirectionalRelationship|Reference]('{'
+	'}')?;
+
+RuleReference:
+	annotations+=Annotation* 'ref' 'rule' rule=[Rule|Reference]('{'
+	'}')?;
+
+DescriptionMemberReference:
+	NamedInstanceReference;
+	
+NamedInstanceReference:
+	ConceptInstanceReference |
+	ReifiedRelationshipInstanceReference;
+
+ConceptInstanceReference:
+	annotations+=Annotation*
+	'ref' 'concept' 'instance' instance=[ConceptInstance|Reference] (':' types+=ConceptInstanceTypeAssertion (',' types+=ConceptInstanceTypeAssertion)*)? ('{'
+		propertyValues+=InstancePropertyValueAssertion*
+	'}')?;
+
+ReifiedRelationshipInstanceReference:
+	annotations+=Annotation*
+	'ref' 'relationship' 'instance' instance=[ReifiedRelationshipInstance|Reference] (':' types+=ReifiedRelationshipInstanceTypeAssertion (',' types+=ReifiedRelationshipInstanceTypeAssertion)*)? ('{'
+		propertyValues+=InstancePropertyValueAssertion*
+	'}')?;
+
+GraphStatement:
+	TerminologyStatement |
+	DescriptionStatement;
+
+TerminologyStatement:
+	Rule |
+	Term |
+	TerminologyMemberReference;
+
+DescriptionStatement:
+	DescriptionMember |
+	DescriptionMemberReference;
+
+Axiom:
+	TermSpecializationAxiom |
+	EntityRestrictionAxiom;
+	
+TermSpecializationAxiom:
+	annotations+=Annotation* specializedTerm=[Term|Reference];
+
+EntityRestrictionAxiom:
+	RelationshipRestrictionAxiom | 
+	ScalarPropertyRestrictionAxiom | 
+	StructuredPropertyRestrictionAxiom;
+
+RelationshipRestrictionAxiom:
+	ExistentialRelationshipRestrictionAxiom | 
+	UniversalRelationshipRestrictionAxiom;
+
+ExistentialRelationshipRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' 'some' relationship=[UnidirectionalRelationship|Reference] 'to' restrictedTo=[Entity|Reference];
+
+UniversalRelationshipRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' 'every' relationship=[UnidirectionalRelationship|Reference] 'to' restrictedTo=[Entity|Reference];
+
+ScalarPropertyRestrictionAxiom:
+	TypedScalarPropertyRestrictionAxion |
+	ParticularScalarPropertyRestrictionAxiom; 
+
+TypedScalarPropertyRestrictionAxion:
+	ExistentialScalarPropertyRestrictionAxiom | 
+	UniversalScalarPropertyRestrictionAxiom;
+
+ExistentialScalarPropertyRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' 'some' property=[ScalarProperty|Reference] 'toType' restrictedTo=[ScalarRange|Reference];
+
+UniversalScalarPropertyRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' 'every' property=[ScalarProperty|Reference] 'toType' restrictedTo=[ScalarRange|Reference];
+
+ParticularScalarPropertyRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' property=[ScalarProperty|Reference] 'to' value=LiteralValue;
+
+StructuredPropertyRestrictionAxiom:
+	annotations+=Annotation*
+	'restricts' property=[StructuredProperty|Reference] 'to' value=StructureInstance;
+
+Assertion:
+	->ConceptInstanceTypeAssertion |
+	ReifiedRelationshipInstanceTypeAssertion |
+	InstancePropertyValueAssertion;
+	
+ConceptInstanceTypeAssertion:
+	annotations+=Annotation* concept=[Concept|Reference];
+
+ReifiedRelationshipInstanceTypeAssertion:
+	annotations+=Annotation* relationship=[ReifiedRelationship|Reference];
+
+InstancePropertyValueAssertion:
+	ScalarPropertyValueAssertion |
+	StructuredPropertyValueAssertion;
+
+ScalarPropertyValueAssertion:
+	annotations+=Annotation*
+	property=[ScalarProperty|Reference] '=' value=LiteralValue;
+	
+StructuredPropertyValueAssertion:
+	annotations+=Annotation*
+	property=[StructuredProperty|Reference] '=' value=StructureInstance;
+
+GraphImport:
+		TerminologyImport |
+		DescriptionImport;
+
+TerminologyImport:
+		TerminologyExtension;
+
+TerminologyExtension:
+	'extends' importURI=IRI ('as' importedNamespace=ID)?;
+    	
+DescriptionImport:
+		DescriptionUsage |
+		DescriptionRefinement;
+
+DescriptionUsage:
+	'uses' importURI=IRI ('as' importedNamespace=ID)?;
+
+DescriptionRefinement:
+	'refines' importURI=IRI ('as' importedNamespace=ID)?;
+
+Instance:
+	NamedInstance |
+	StructureInstance;
+
+StructureInstance:
+	structure=[Structure|Reference] '{'
+		propertyValues+=InstancePropertyValueAssertion*
+	'}';
+
+LiteralValue:
+	LiteralBoolean | 
+	LiteralDateTime | 
+	LiteralString | 
+	LiteralUUID | 
+	LiteralURI | 
+	LiteralNumber;
+
+LiteralBoolean:
+	value=(TRUE|FALSE) ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralDateTime:
+	value=DATE_TIME ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralString:
+	value=STRING ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralUUID:
+	value=UUID ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralURI:
+	value=URI ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralNumber:
+	LiteralReal | 
+	LiteralRational | 
+	LiteralFloat | 
+	LiteralDecimal;
+
+LiteralReal:
+	value=REAL ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralRational:
+	value=RATIONAL ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralFloat:
+	value=FLOAT ('^^' valueType=[ScalarRange|Reference])?;
+
+LiteralDecimal:
+	value=DECIMAL ('^^' valueType=[ScalarRange|Reference])?;
+
+Predicate:
+	EntityPredicate |
+	RelationshipPredicate;
+
+EntityPredicate:	
+	entity=[Entity|Reference]'(' variable=ID ')';
+
+RelationshipPredicate:
+	UnidirectionalRelationshipPredicate |
+	ReifiedRelationshipPredicate;
+	
+UnidirectionalRelationshipPredicate:
+	relationship=[UnidirectionalRelationship|Reference] '(' variable1=ID ',' variable2=ID ')';
+
+ReifiedRelationshipPredicate:	
+	relationship=[ReifiedRelationship|Reference] '(' kind=ReifiedRelationshipPredicateKind ',' variable1=ID ',' variable2=ID ')';
+
+enum ReifiedRelationshipPredicateKind:
+	Source = 'source' |
+	InverseSource = 'inverseSource' |
+	Target = 'target' |
+	InverseTarget = 'inverseTarget';
+
+//----------------------------
+	
+Reference:
+	QName |
+	ID;
+
+QName:
+	IRI |
+	ABBREV_IRI;
+
+NonNegativeInteger returns ecore::EIntegerObject:
+	DECIMAL;
+	
+//----------------------------
+
+terminal FALSE returns ecore::EBoolean:					'false';
+
+terminal TRUE returns ecore::EBoolean:					'true';
+
+terminal RATIONAL returns ecore::EDoubleObject:			'-'? DIGIT+ '/' DIGIT+;
+
+terminal URI:											SCHEME ':' IHIER_PART ( '#' IFRAGMENT )?;
+
+terminal CONSTANT_NAME:									ALPHA ( ALPHA | DIGIT )*;
+
+terminal REAL returns ecore::EDoubleObject:				'{' ('-' | '+')? CONSTANT_NAME '}';
+
+terminal STRING:										'"' (!('"'|'\\') | '\\'.)* '"';
+
+terminal IRI:											'<' (!'>')* '>';
+
+terminal ABBREV_IRI:									ID ':' ID;
+
+terminal LANG_TAG:										'lang=' LETTER+('-'LETTER_DIGIT+)*;
+    
+terminal DATE_TIME:							 			'dateTime=' YEAR_FRAG '-' MONTH_FRAG '-' DAY_FRAG 'T' ( (HOUR_FRAG ':' MINUTE_FRAG ':' SECOND_FRAG) | END_OF_DAY_FRAG ) TIMEZONE_FRAG?;
+
+terminal UUID:											'uuid=' HEX_8DIGITS '-' HEX_4DIGITS '-' HEX_4DIGITS '-' HEX_4DIGITS '-' HEX_12DIGITS;
+
+terminal DECIMAL returns ecore::EBigDecimal:			DEC | HEX;
+
+terminal FLOAT returns ecore::EFloatObject:				'-'?
+														(DIGIT+ '.' DIGIT+)
+													    (('e' | 'E') ('+' | '-')? DIGIT+)?;
+
+terminal ID:											'^'? LETTER_DIGIT_PREFIX LETTER_DIGIT_SUFFIX* |
+														'^'? '\'' LETTER_DIGIT_PREFIX (!'\'')* '\'';
+	    
+terminal ML_COMMENT: 									'/*' -> '*/';
+ 
+terminal SL_COMMENT:									'//' !('\n'|'\r')* ('\r'? '\n')?;
+ 
+terminal WS: 											(' '|'\t'|'\r'|'\n')+;
+
+//----------------------------
+// https://www.w3.org/TR/xmlschema11-2/#rf-lexicalMappings-datetime
+
+terminal fragment DIGIT: 								'0'..'9';
+
+terminal fragment DIGIT19:								'1'..'9';
+
+terminal fragment DIGIT02:								'0'..'2';
+
+terminal fragment DIGIT03:								'0'..'3';
+
+terminal fragment DIGIT05:								'0'..'5';
+
+terminal fragment YEAR_FRAG:							'-'? ( (DIGIT19 DIGIT DIGIT DIGIT+) | ('0' DIGIT DIGIT DIGIT) );
+
+terminal fragment MONTH_FRAG:							('0' DIGIT19) | ('1' DIGIT02);
+
+terminal fragment DAY_FRAG:								('0' DIGIT19) | (('1'|'2') DIGIT) | ('3' ('0'|'1'));
+
+terminal fragment HOUR_FRAG:							(('0'|'1')DIGIT) | ('2'DIGIT03);
+
+terminal fragment MINUTE_FRAG:							DIGIT05 DIGIT;
+
+terminal fragment SECOND_FRAG:							DIGIT05 DIGIT ('.' DIGIT+)?;
+
+terminal fragment END_OF_DAY_FRAG:						'24:00:00' ('.' DIGIT+)?;
+
+terminal fragment TIMEZONE_FRAG:						'Z' | ('+'|'-') (('0' DIGIT | '1' DIGIT03) ':' MINUTE_FRAG | '14:00');
+
+//----------------------------
+// http://www.ietf.org/rfc/rfc3987.txt
+
+terminal fragment ALPHA:								('a'..'z'|'A'..'Z');
+
+terminal fragment SCHEME:								ALPHA ( ALPHA | DIGIT | '+' | '-' | '.' )*;
+
+terminal fragment PCT_ENCODED:							'%' HEX_DIGIT HEX_DIGIT;
+
+terminal fragment UNRESERVED:							ALPHA | DIGIT | '-' | '.' | '_' | '~';
+
+terminal fragment DIGIT04:								'0'..'4';
+
+terminal fragment DEC_OCTET:							( DIGIT | '1' DIGIT | '2' DIGIT04 DIGIT | '25' DIGIT05);
+
+terminal fragment IPV4_ADDRESS:							DEC_OCTET '.' DEC_OCTET '.' DEC_OCTET '.' DEC_OCTET;
+
+terminal fragment IUSER_PART:							( UNRESERVED | PCT_ENCODED )+;
+
+terminal fragment IUSER_INFO:							IUSER_PART (':' IUSER_PART)*;
+
+terminal fragment IUNRESERVED_PART:						ALPHA | DIGIT | '-' | '_' | '~';
+
+terminal fragment IUNRESERVED:							ALPHA IUNRESERVED_PART? ( '.' IUNRESERVED_PART )*;
+
+terminal fragment IHOST:								IPV4_ADDRESS | IUNRESERVED;
+
+terminal fragment PORT:									DIGIT+;
+
+terminal fragment IAUTHORITY:							( IUSER_INFO '@' )? IHOST ( ':' PORT )?;
+
+terminal fragment IPCHAR:								IUNRESERVED_PART | PCT_ENCODED;
+
+terminal fragment ISEGMENT:								IPCHAR+;
+
+terminal fragment IPATH:								ISEGMENT ('/' ISEGMENT)*;
+
+terminal fragment IHIER_PART:							'//' IAUTHORITY IPATH?;
+
+terminal fragment IFRAGMENT:							ISEGMENT;
+
+//----------------------------
+
+terminal fragment LETTER:								'a'..'z'|'A'..'Z';
+
+terminal fragment LETTER_DIGIT:							LETTER | DIGIT;
+
+terminal fragment LETTER_DIGIT_PREFIX:					LETTER_DIGIT | '_';
+
+terminal fragment LETTER_DIGIT_SUFFIX:					LETTER_DIGIT | '_' | '-' | '.';
+	
+//----------------------------
+// https://www.w3.org/TR/xmlschema11-2/#language
+
+terminal fragment HEX_12DIGITS:							HEX_8DIGITS HEX_4DIGITS;
+
+terminal fragment HEX_8DIGITS:							HEX_4DIGITS HEX_4DIGITS;
+
+terminal fragment HEX_4DIGITS:							HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
+
+terminal fragment HEX_LETTER:							'a'..'f' | 'A'..'F';
+
+terminal fragment HEX_DIGIT:							DIGIT | HEX_LETTER;
+
+terminal fragment HEX:									('0x'|'0X') (HEX_DIGIT|'_')+ ('#' (('b'|'B')('i'|'I') | ('l'|'L')))?;
+	
+terminal fragment DEC:									'-'?
+														DIGIT+
+														(('e'|'E') ('+'|'-')? DIGIT+)? 
+														(('b'|'B')('i'|'I'|'d'|'D') | ('l'|'L'|'d'|'D'|'f'|'F'))?;

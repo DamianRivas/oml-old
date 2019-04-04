@@ -1,0 +1,9 @@
+ext.title = 'Oml Language Server'
+description = 'Generic IDE services for Oml offered via the Language Server Protocol'
+
+dependencies {
+	compile project(':io.opencaesar.oml.dsl')
+	compile "org.eclipse.xtext:org.eclipse.xtext.ide:${versions.xtext}"
+	compile "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${versions.xtext}"
+	compile 'com.google.guava:guava:21.0'
+}

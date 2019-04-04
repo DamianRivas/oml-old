@@ -1,0 +1,50 @@
+sourceSets {
+	main {
+		java.srcDirs = ['src/main/java', 'src/main/xtext-gen']
+		resources.srcDirs = ['src/main/resources', 'src/main/xtext-gen']
+		xtendOutputDir = 'src/main/xtend-gen'
+	}
+	test {
+		java.srcDirs = ['src/test/java', 'src/test/xtext-gen']
+		resources.srcDirs = ['src/test/resources', 'src/test/xtext-gen']
+		xtendOutputDir = 'src/test/xtend-gen'
+	}
+}
+
+sourceSets.all {
+	resources.exclude '**/*.g', '**/*.mwe2', '**/*.xtend', '**/*._trace'
+}
+
+jar {
+	from('model') {
+		into('model')
+	}
+	from(sourceSets.main.allSource) {
+		include '**/*.xtext'
+	}
+	manifest {
+		attributes 'Bundle-SymbolicName': project.name
+	}
+}
+
+plugins.withId('war') {
+	webAppDirName = "src/main/webapp"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+javadoc.options.tags = [ "generated", "ordered", "model" ]
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}

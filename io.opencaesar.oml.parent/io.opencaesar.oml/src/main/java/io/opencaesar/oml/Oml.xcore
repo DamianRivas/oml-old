@@ -1,0 +1,592 @@
+/*
+ * The package of the Ontology Modeling Language
+ */
+@Ecore(
+	nsPrefix="oml",
+	nsURI="http://opencaesar.io/Oml"
+)
+@GenModel(
+    bundleManifest="false",
+    modelDirectory="io.opencaesar.oml/build/xcore/main", 
+    complianceLevel="8.0"
+)
+@Oml(
+	Common="",
+	Literals="",
+	Graphs="",
+	Terms="",
+	ClassTerms="",
+	DataTerms="",
+	Axioms="",
+	Rules="",
+	Instances="",
+	Assertions="",
+	References="",
+	TerminologyReferences="",
+	DescriptionReferences=""
+)
+package io.opencaesar.oml
+
+annotation "http://opencaesar.io/Oml" as Oml
+
+/*
+ * Element is the root superclass of all OML elements 
+ */ 
+ @Oml(subsection="Common")
+ abstract class Element {
+}
+
+@Oml(subsection="Common")
+ class Annotation extends Element {
+	refers AnnotationProperty property
+	contains LiteralValue value
+}
+
+@Oml(subsection="Common")
+abstract class AnnotatedElement extends Element {
+	contains Annotation[] annotations
+}
+
+@Oml(subsection="Common")
+abstract class NamedElement extends AnnotatedElement {
+	String name
+}
+
+@Oml(subsection="Graphs")
+abstract class Graph extends NamedElement {
+	String iri
+}
+
+@Oml(subsection="Graphs")
+class Terminology extends Graph {
+	@Oml(annotationProperty="true")
+	TerminologyKind kind
+	contains TerminologyImport[] imports
+	contains TerminologyStatement[] statements
+}
+
+@Oml(subsection="Graphs")
+enum TerminologyKind {
+	Open as "open"
+	Closed as "closed" = 1
+}
+
+@Oml(subsection="Graphs")
+class Description extends Graph {
+	@Oml(annotationProperty="true")
+	DescriptionKind kind
+	contains DescriptionImport[] imports
+	contains DescriptionStatement[] statements
+}
+
+@Oml(subsection="Graphs")
+enum DescriptionKind {
+	Final as "final"
+	Partial as "partial" = 1
+}
+
+@Oml(subsection="Graphs")
+abstract class GraphMember extends NamedElement {
+}
+
+@Oml(subsection="Graphs")
+abstract class TerminologyMember extends GraphMember {
+}
+
+@Oml(subsection="Terms")
+abstract class Term extends TerminologyMember, TerminologyStatement {
+	contains TermSpecializationAxiom[] specializations
+}
+
+@Oml(subsection="Terms")
+abstract class CharacterizableTerm extends Term {
+}
+
+@Oml(subsection="ClassTerms")
+abstract class Entity extends CharacterizableTerm {
+	contains EntityRestrictionAxiom[] restrictions
+}
+
+@Oml(subsection="ClassTerms")
+class Aspect extends Entity {
+}
+
+@Oml(subsection="ClassTerms")
+class Concept extends Entity {
+}
+
+@Oml(subsection="ClassTerms", reifiedRelationship="true", forward="forwardRelationship", inverse="inverseRelationship")
+class ReifiedRelationship extends Entity , Relationship {
+	@Oml(ignore="true")
+	contains ForwardRelationship forward
+	@Oml(ignore="true")
+	contains InverseRelationship inverse
+}
+
+@Oml(subsection="DataTerms")
+class Structure extends CharacterizableTerm {
+}
+
+@Oml(subsection="ClassTerms")
+abstract class Relationship extends Term {
+	@Oml(source="true")
+	refers Entity source
+	@Oml(target="true")
+	refers Entity target
+	boolean functional
+	boolean inverseFunctional
+	boolean symmetric
+	boolean asymmetric
+	boolean reflexive
+	boolean irreflexive
+	boolean transitive
+}
+
+@Oml(subsection="ClassTerms", reifiedRelationship="true", forward="unreifiedRelationship")
+class UnreifiedRelationship extends Relationship , UnidirectionalRelationship {
+}
+
+@Oml(subsection="DataTerms")
+abstract class ScalarRange extends Term {
+}
+
+@Oml(subsection="DataTerms")
+class Scalar extends ScalarRange {
+}
+
+@Oml(subsection="DataTerms")
+abstract class CharArrayScalar extends ScalarRange {
+	Integer length
+	Integer minLength
+	Integer maxLength
+}
+
+@Oml(subsection="DataTerms")
+class BinaryScalar extends CharArrayScalar {
+}
+
+@Oml(subsection="DataTerms")
+abstract class PatternScalar extends CharArrayScalar {
+	String pattern
+}
+
+@Oml(subsection="DataTerms")
+class IRIScalar extends PatternScalar {
+}
+
+@Oml(subsection="DataTerms")
+class PlainLiteralScalar extends PatternScalar {
+	String language
+}
+
+@Oml(subsection="DataTerms")
+class StringScalar extends PatternScalar {
+}
+
+@Oml(subsection="DataTerms")
+class NumericScalar extends ScalarRange {
+	contains LiteralNumber minInclusive
+	contains LiteralNumber minExclusive
+	contains LiteralNumber maxInclusive
+	contains LiteralNumber maxExclusive
+}
+
+@Oml(subsection="DataTerms")
+class TimeScalar extends ScalarRange {
+	contains LiteralDateTime minInclusive
+	contains LiteralDateTime minExclusive
+	contains LiteralDateTime maxInclusive
+	contains LiteralDateTime maxExclusive
+}
+
+@Oml(subsection="DataTerms")
+class EnumerationScalar extends ScalarRange {
+	contains LiteralValue[] literals
+}
+
+@Oml(subsection="Terms")
+abstract class Property extends Term {
+}
+
+@Oml(subsection="Terms")
+abstract class CharacterizationProperty extends Property {
+	refers CharacterizableTerm domain
+	boolean functional
+}
+
+@Oml(subsection="Terms")
+class StructuredProperty extends CharacterizationProperty {
+	refers Structure range
+}
+
+@Oml(subsection="Terms")
+class ScalarProperty extends CharacterizationProperty {
+	refers ScalarRange range
+}
+
+@Oml(subsection="Terms")
+class AnnotationProperty extends Property {
+}
+
+@Oml(subsection="Rules")
+class Rule extends TerminologyMember, TerminologyStatement {
+	contains Predicate[] antecedent
+	contains UnidirectionalRelationshipPredicate consequent
+}
+
+@Oml(subsection="ClassTerms")
+abstract class UnidirectionalRelationship extends TerminologyMember {
+}
+
+@Oml(subsection="ClassTerms")
+abstract class ReifiedUnidirectionalRelationship extends UnidirectionalRelationship {
+}
+
+@Oml(subsection="ClassTerms", ignore="true")
+class ForwardRelationship extends ReifiedUnidirectionalRelationship {
+}
+
+@Oml(subsection="ClassTerms", ignore="true")
+class InverseRelationship extends ReifiedUnidirectionalRelationship {
+}
+
+@Oml(subsection="Graphs")
+abstract class DescriptionMember extends GraphMember, DescriptionStatement {
+}
+
+@Oml(subsection="Instances")
+abstract class NamedInstance extends DescriptionMember , Instance {
+}
+
+@Oml(subsection="Instances")
+class ConceptInstance extends NamedInstance {
+	contains Assertion[] types
+}
+
+@Oml(subsection="Instances")
+class ReifiedRelationshipInstance extends NamedInstance {
+	contains ReifiedRelationshipInstanceTypeAssertion[] types
+	refers NamedInstance source
+	refers NamedInstance target
+}
+
+@Oml(subsection="References")
+abstract class NamedElementReference extends AnnotatedElement {
+}
+
+@Oml(subsection="References")
+abstract class GraphMemberReference extends NamedElementReference {
+}
+
+@Oml(subsection="TerminologyReferences")
+abstract class TerminologyMemberReference extends GraphMemberReference, TerminologyStatement {
+}
+
+@Oml(subsection="TerminologyReferences")
+abstract class TermReference extends TerminologyMemberReference {
+	contains TermSpecializationAxiom[] specializations
+}
+
+@Oml(subsection="TerminologyReferences")
+abstract class EntityReference extends TermReference {
+	contains EntityRestrictionAxiom[] restrictions
+}
+
+@Oml(subsection="TerminologyReferences")
+class AspectReference extends EntityReference {
+	refers Aspect aspect
+}
+
+@Oml(subsection="TerminologyReferences")
+class ConceptReference extends EntityReference {
+	refers Concept concept
+}
+
+@Oml(subsection="TerminologyReferences")
+class ReifiedRelationshipReference extends EntityReference {
+	refers ReifiedRelationship relationship
+}
+
+@Oml(subsection="TerminologyReferences")
+class UnreifiedRelationshipReference extends TermReference, UnidirectionalRelationshipReference {
+	refers UnreifiedRelationship relationship
+}
+
+@Oml(subsection="TerminologyReferences")
+class StructureReference extends TermReference {
+	refers Structure structure
+}
+
+@Oml(subsection="TerminologyReferences")
+class ScalarRangeReference extends TermReference {
+	refers ScalarRange scalar
+}
+
+@Oml(subsection="TerminologyReferences")
+class StructuredPropertyReference extends TermReference {
+	refers StructuredProperty property
+}
+
+@Oml(subsection="TerminologyReferences")
+class ScalarPropertyReference extends TermReference {
+	refers ScalarProperty property
+}
+
+@Oml(subsection="TerminologyReferences")
+abstract class UnidirectionalRelationshipReference extends TerminologyMemberReference {
+}
+
+@Oml(subsection="TerminologyReferences")
+class ReifiedUnidirectionalRelationshipReference extends UnidirectionalRelationshipReference {
+	refers ReifiedUnidirectionalRelationship relationship
+}
+
+@Oml(subsection="TerminologyReferences")
+class RuleReference extends TerminologyMemberReference {
+	refers Rule rule	
+}
+
+@Oml(subsection="DescriptionReferences")
+abstract class DescriptionMemberReference extends GraphMemberReference, DescriptionStatement {
+}
+
+@Oml(subsection="DescriptionReferences")
+abstract class NamedInstanceReference extends DescriptionMemberReference {
+	contains InstancePropertyValueAssertion[] propertyValues
+}
+
+@Oml(subsection="DescriptionReferences")
+class ConceptInstanceReference extends NamedInstanceReference {
+	refers ConceptInstance instance
+	contains ConceptInstanceTypeAssertion[] types
+}
+
+@Oml(subsection="DescriptionReferences")
+class ReifiedRelationshipInstanceReference extends NamedInstanceReference {
+	refers ReifiedRelationshipInstance instance
+	contains ReifiedRelationshipInstanceTypeAssertion[] types
+}
+
+@Oml(subsection="Graphs")
+abstract class GraphStatement extends AnnotatedElement {
+}
+
+@Oml(subsection="Graphs")
+abstract class TerminologyStatement extends GraphStatement {
+}
+
+@Oml(subsection="Graphs")
+abstract class DescriptionStatement extends GraphStatement {
+}
+
+@Oml(subsection="Axioms")
+abstract class Axiom extends AnnotatedElement {
+}
+
+@Oml(subsection="Axioms")
+class TermSpecializationAxiom extends Axiom {
+	refers Term specializedTerm
+}
+
+@Oml(subsection="Axioms")
+abstract class EntityRestrictionAxiom extends Axiom {
+}
+
+@Oml(subsection="Axioms")
+abstract class RelationshipRestrictionAxiom extends EntityRestrictionAxiom {
+	refers UnidirectionalRelationship relationship
+	refers Entity restrictedTo
+}
+
+@Oml(subsection="Axioms")
+class ExistentialRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
+}
+
+@Oml(subsection="Axioms")
+class UniversalRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
+}
+
+@Oml(subsection="Axioms")
+abstract class ScalarPropertyRestrictionAxiom extends EntityRestrictionAxiom {
+	refers ScalarProperty property
+}
+
+@Oml(subsection="Axioms")
+abstract class TypedScalarPropertyRestrictionAxion extends ScalarPropertyRestrictionAxiom {
+	refers ScalarRange restrictedTo
+}
+
+@Oml(subsection="Axioms")
+class ExistentialScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
+}
+
+@Oml(subsection="Axioms")
+class UniversalScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
+}
+
+@Oml(subsection="Axioms")
+class ParticularScalarPropertyRestrictionAxiom extends ScalarPropertyRestrictionAxiom {
+	contains LiteralValue value
+}
+
+@Oml(subsection="Axioms")
+class StructuredPropertyRestrictionAxiom extends EntityRestrictionAxiom {
+	refers StructuredProperty property
+	contains StructureInstance value
+}
+
+@Oml(subsection="Assertions")
+abstract class Assertion extends AnnotatedElement {
+}
+
+@Oml(subsection="Assertions")
+class ConceptInstanceTypeAssertion extends Assertion {
+	refers Concept concept	
+}
+
+@Oml(subsection="Assertions")
+class ReifiedRelationshipInstanceTypeAssertion extends Assertion {
+	refers ReifiedRelationship relationship	
+}
+
+@Oml(subsection="Assertions")
+abstract class InstancePropertyValueAssertion extends Assertion {
+}
+
+@Oml(subsection="Assertions")
+class ScalarPropertyValueAssertion extends InstancePropertyValueAssertion {
+	refers ScalarProperty property
+	contains LiteralValue value
+}
+
+@Oml(subsection="Assertions")
+class StructuredPropertyValueAssertion extends InstancePropertyValueAssertion {
+	refers StructuredProperty property
+	contains StructureInstance value
+}
+
+@Oml(subsection="Graphs")
+abstract class GraphImport extends Element {
+	String importURI
+	String importedNamespace
+}
+
+@Oml(subsection="Graphs")
+abstract class TerminologyImport extends GraphImport {
+}
+
+@Oml(subsection="Graphs")
+class TerminologyExtension extends TerminologyImport {
+}
+
+@Oml(subsection="Graphs")
+abstract class DescriptionImport extends GraphImport {
+}
+
+@Oml(subsection="Graphs")
+class DescriptionUsage extends DescriptionImport {
+}
+
+@Oml(subsection="Graphs")
+class DescriptionRefinement extends DescriptionImport {
+}
+
+@Oml(subsection="Instances")
+abstract class Instance extends Element {
+	contains InstancePropertyValueAssertion[] propertyValues
+}
+
+@Oml(subsection="Instances")
+class StructureInstance extends Instance {
+	refers Structure structure
+}
+
+@Oml(subsection="Literals")
+abstract class LiteralValue extends Element {
+	refers ScalarRange valueType
+}
+
+@Oml(subsection="Literals")
+class LiteralBoolean extends LiteralValue {
+	boolean value
+}
+
+@Oml(subsection="Literals")
+class LiteralDateTime extends LiteralValue {
+	String value
+}
+
+@Oml(subsection="Literals")
+class LiteralString extends LiteralValue {
+	String value
+}
+
+@Oml(subsection="Literals")
+class LiteralUUID extends LiteralValue {
+	String value
+}
+
+@Oml(subsection="Literals")
+class LiteralURI extends LiteralValue {
+	String value
+}
+
+@Oml(subsection="Literals")
+abstract class LiteralNumber extends LiteralValue {
+}
+
+@Oml(subsection="Literals")
+class LiteralReal extends LiteralNumber {
+	Double value
+}
+
+@Oml(subsection="Literals")
+class LiteralRational extends LiteralNumber {
+	Double value
+}
+
+@Oml(subsection="Literals")
+class LiteralFloat extends LiteralNumber {
+	Float value
+}
+
+@Oml(subsection="Literals")
+class LiteralDecimal extends LiteralNumber {
+	BigDecimal value
+}
+
+@Oml(subsection="Rules")
+abstract class Predicate extends Element {
+}
+
+@Oml(subsection="Rules")
+class EntityPredicate extends Predicate {
+	refers Entity entity
+	String variable
+}
+
+@Oml(subsection="Rules")
+abstract class RelationshipPredicate extends Predicate {
+	String variable1
+	String variable2
+}
+
+@Oml(subsection="Rules")
+class UnidirectionalRelationshipPredicate extends RelationshipPredicate {
+	refers UnidirectionalRelationship relationship
+}
+
+@Oml(subsection="Rules")
+class ReifiedRelationshipPredicate extends RelationshipPredicate {
+	refers ReifiedRelationship relationship
+	ReifiedRelationshipPredicateKind kind
+}
+
+@Oml(subsection="Rules")
+enum ReifiedRelationshipPredicateKind {
+	Source as "source"
+	InverseSource as "inverseSource" = 1
+	Target as "target" = 2
+	InverseTarget as "inverseTarget" = 3
+}
+

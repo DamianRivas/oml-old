@@ -5,10 +5,10 @@ jdk:
 - oraclejdk8
 
 before_script:
-- cd open.caesar.oml.parent
+- cd io.opencaesar.oml.parent
 
 script:
-  - ./gradlew shadowJar
+  - ./gradlew build
 
 before_deploy:
   - export JAR_FILE=$(ls */build/libs/oml-language-server-*.jar)
@@ -23,4 +23,15 @@ deploy:
   draft: true
   on:
     tags: true
-    repo: open-caesar/oml-language-server
+    repo: opencaesar/oml-language-server
+    branch: master
+
+deploy:
+  provider: script
+  script: ./gradlew bintrayUpload
+  skip_cleanup: true
+  dry-run: false
+  on:
+    tags: true
+    repo: opencaesar/oml-language-server
+    branch: master

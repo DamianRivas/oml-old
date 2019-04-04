@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oml:Terminology xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oml="http://opencaesar.io/Oml" name="rdfs" iri="http://www.w3.org/2000/01/rdf-schema#">
+  <statements xsi:type="oml:AnnotationProperty" name="comment"/>
+  <statements xsi:type="oml:AnnotationProperty" name="isDefinedBy"/>
+  <statements xsi:type="oml:AnnotationProperty" name="label"/>
+  <statements xsi:type="oml:AnnotationProperty" name="seeAlso"/>
+</oml:Terminology>

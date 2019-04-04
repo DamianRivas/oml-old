@@ -1,0 +1,4 @@
+include 'io.opencaesar.oml'
+include 'io.opencaesar.oml.dsl'
+include 'io.opencaesar.oml.dsl.ide'
+include 'io.opencaesar.oml.dsl.diagram'
