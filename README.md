@@ -24,7 +24,7 @@ Dependencies: Gradle 4.9, Java 8
 
 ## Release
 
-Replace <version> by the version, e.g., 1.2
+Replace \<version\> by the version, e.g., 1.2
 ```
   cd oml-language-server
   git tag -a v<version> -m "<version>"
