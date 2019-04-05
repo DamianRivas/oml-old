@@ -14,24 +14,22 @@ before_deploy:
   - export JAR_FILE=$(ls */build/libs/oml-language-server-*.jar)
   
 deploy:
-  provider: releases
-  api_key:
-    secure: Dgy5S8i2xmj7prAyWT1K6bWH4MXj/mqMz2CA5NkTqQKx1CXx9yZoOrZmWAs8truRAuC3+NCN9tJIszhVWga7mmPU/Ts8K5GepnJGM6fPhhOFVPswbHAEdn51yAX0D8ePfWRIgDEOHqGlLTbjbEB2JKZMhQp2qcw88q+s1MTu/qGGlWlJW/+Kto1BqC9vMmOSKmWnZRAuDNU6bb+LVAaavGkDhG3WpjibGUDPvJtQPpW9vzEu5cL0FNlw6z0N7hoyUi1M56kZvpkXbyT2UmHD/bx51Uo/ubNDNHZAc2D/rTHj8/zBpx5dJjt6psvwefcDPuYgzwg8g6MIXVN7+xhMm/FmZSHMDiiXTorhTkz81IpKyziS2A3N/F8Az75VcBHBSoiWjwHDyQCAFGz2NE2DrB//Upjd+Jjuejsd4jTwiI9DwzxbbRKX/wUoZ6z1fN2weICWht3rkPI1HWJimSiOAGZ6zlYG0rfZAWiZsfU104KD4AXQzUBNwqONlvZdw+B8RDR2/L3+DGvdzhFYgenSeJiglJDMdJqKRRe2P7mR5k5+yhXmwdin8LgJIemcQptk++iB3BE7TLEi9TXsHq6K2u5GZbmTeyDvB5SYlnu1ce2bPN1lsbTAmaWjA3lEnX7ohIc1tk8vT92TG+Z0vZjigKIkUk1yzlmKHqISQbnJTmM=
-  file_glob: true
-  file: "${JAR_FILE}"
-  skip_cleanup: true
-  draft: true
-  on:
-    tags: true
-    repo: opencaesar/oml-language-server
-    branch: master
-
-deploy:
-  provider: script
-  script: ./gradlew bintrayUpload
-  skip_cleanup: true
-  dry-run: false
-  on:
-    tags: true
-    repo: opencaesar/oml-language-server
-    branch: master
+  - provider: releases
+    api_key:
+      secure: Dgy5S8i2xmj7prAyWT1K6bWH4MXj/mqMz2CA5NkTqQKx1CXx9yZoOrZmWAs8truRAuC3+NCN9tJIszhVWga7mmPU/Ts8K5GepnJGM6fPhhOFVPswbHAEdn51yAX0D8ePfWRIgDEOHqGlLTbjbEB2JKZMhQp2qcw88q+s1MTu/qGGlWlJW/+Kto1BqC9vMmOSKmWnZRAuDNU6bb+LVAaavGkDhG3WpjibGUDPvJtQPpW9vzEu5cL0FNlw6z0N7hoyUi1M56kZvpkXbyT2UmHD/bx51Uo/ubNDNHZAc2D/rTHj8/zBpx5dJjt6psvwefcDPuYgzwg8g6MIXVN7+xhMm/FmZSHMDiiXTorhTkz81IpKyziS2A3N/F8Az75VcBHBSoiWjwHDyQCAFGz2NE2DrB//Upjd+Jjuejsd4jTwiI9DwzxbbRKX/wUoZ6z1fN2weICWht3rkPI1HWJimSiOAGZ6zlYG0rfZAWiZsfU104KD4AXQzUBNwqONlvZdw+B8RDR2/L3+DGvdzhFYgenSeJiglJDMdJqKRRe2P7mR5k5+yhXmwdin8LgJIemcQptk++iB3BE7TLEi9TXsHq6K2u5GZbmTeyDvB5SYlnu1ce2bPN1lsbTAmaWjA3lEnX7ohIc1tk8vT92TG+Z0vZjigKIkUk1yzlmKHqISQbnJTmM=
+    file_glob: true
+    file: "${JAR_FILE}"
+    skip_cleanup: true
+    draft: true
+    on:
+      tags: true
+      repo: opencaesar/oml-language-server
+      branch: master
+  - provider: script
+    script: ./gradlew bintrayUpload
+    skip_cleanup: true
+    dry-run: false
+    on:
+      tags: true
+      repo: opencaesar/oml-language-server
+      branch: master
