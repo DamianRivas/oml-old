@@ -11,7 +11,7 @@ script:
   - ./gradlew build
 
 before_deploy:
-  - export JAR_FILE=$(ls */build/libs/oml-language-server-*.jar)
+  - export JAR_FILE=$(ls */build/libs/oml-language-server\-*.jar)
   
 deploy:
   - provider: releases
@@ -23,7 +23,7 @@ deploy:
     draft: true
     on:
       tags: true
-      repo: opencaesar/oml-language-server
+      repo: opencaesar/oml
       branch: master
   - provider: script
     script: ./gradlew bintrayUpload
@@ -31,5 +31,5 @@ deploy:
     dry-run: false
     on:
       tags: true
-      repo: opencaesar/oml-language-server
+      repo: opencaesar/oml
       branch: master
