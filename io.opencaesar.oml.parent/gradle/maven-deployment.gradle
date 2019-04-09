@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 ext.gh = [
 	dep: 'https://github.com',
 	org: 'opencaesar',
-	rep: 'oml-language-server'
+	rep: 'oml'
 ]
 
 uploadArchives {
@@ -34,7 +34,7 @@ def pomConfig = {
     }
 
     scm {
-        url "https://github.com/opencaesar/oml-language-server"
+        url "https://github.com/opencaesar/oml"
     }
 }
 
