@@ -1,0 +1,100 @@
+<pre class='metadata'>
+Status: ld
+TR: https://opencaesar.github.io/oml/
+ED: https://opencaesar.github.io/oml/
+Shortname: OML
+Level: 1
+Editor: Maged Elaasar, JPL
+Title: OML: Ontology Modeling Language
+Abstract: This document specifies the OML language
+          following the microservices pattern decomposition strategy.
+Boilerplate: copyright no, conformance no
+Complain About: accidental-2119 yes
+Markup Shorthands: markdown yes
+Repository: https://github.com/opencaesar/oml
+Inline Github Issues: full
+!Copyright: 2019, Jet Propulsion Laboratory, California Institute of Technology.
+Max Toc Depth: 3
+</pre>
+<style>
+body {
+  padding: 0;
+  margin: 0;
+  max-width: unset;
+}
+
+table {
+  border-collapse: collapse;
+  border: 3px solid black;
+}
+
+th, td {
+  border: 3px solid black;
+  padding: 20px;
+}
+
+thead th:nth-child(1) {
+  text-align: center;
+}
+
+thead th:nth-child(2) {
+  text-align: center;
+}
+
+thead th:nth-child(3) {
+  text-align: center;
+}
+
+thead th:nth-child(4) {
+  text-align: center;
+}
+
+thead th:nth-child(5) {
+  text-align: center;
+}
+
+tbody td:nth-child(1) {
+  text-align: center;
+}
+
+tbody td:nth-child(2) {
+  text-align: center;
+}
+
+tbody td:nth-child(3) {
+  text-align: center;
+}
+
+tbody td:nth-child(4) {
+  text-align: center;
+}
+
+tbody td:nth-child(5) {
+  text-align: left;
+}
+</style>
+
+<!-- Instruct bikeshed to export all 'dfn', even if they are not referenced, without warnings. -->
+<div export=true>
+
+<pre class=include>
+path: getting-started.md
+</pre>
+
+<pre class=include>
+path: concrete-syntax.md
+</pre>
+		
+<pre class=include>
+path: io.opencaesar.oml.md
+</pre>
+
+<pre class=include>
+path: public-api.md
+</pre>
+
+<pre class=include>
+path: legacy-oml.md
+</pre>
+
+</div>

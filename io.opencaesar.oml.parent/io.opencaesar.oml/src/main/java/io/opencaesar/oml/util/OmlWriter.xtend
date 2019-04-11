@@ -18,6 +18,7 @@ import io.opencaesar.oml.DescriptionKind
 import io.opencaesar.oml.DescriptionRefinement
 import io.opencaesar.oml.DescriptionStatement
 import io.opencaesar.oml.DescriptionUsage
+import io.opencaesar.oml.DirectionalRelationshipPredicate
 import io.opencaesar.oml.Element
 import io.opencaesar.oml.Entity
 import io.opencaesar.oml.EntityPredicate
@@ -25,12 +26,12 @@ import io.opencaesar.oml.EntityReference
 import io.opencaesar.oml.EnumerationScalar
 import io.opencaesar.oml.ExistentialRelationshipRestrictionAxiom
 import io.opencaesar.oml.ExistentialScalarPropertyRestrictionAxiom
-import io.opencaesar.oml.ForwardRelationship
+import io.opencaesar.oml.ForwardDirection
 import io.opencaesar.oml.Graph
 import io.opencaesar.oml.GraphMember
 import io.opencaesar.oml.GraphMemberReference
 import io.opencaesar.oml.IRIScalar
-import io.opencaesar.oml.InverseRelationship
+import io.opencaesar.oml.InverseDirection
 import io.opencaesar.oml.LiteralBoolean
 import io.opencaesar.oml.LiteralDateTime
 import io.opencaesar.oml.LiteralDecimal
@@ -57,8 +58,9 @@ import io.opencaesar.oml.ReifiedRelationshipInstanceTypeAssertion
 import io.opencaesar.oml.ReifiedRelationshipPredicate
 import io.opencaesar.oml.ReifiedRelationshipPredicateKind
 import io.opencaesar.oml.ReifiedRelationshipReference
-import io.opencaesar.oml.ReifiedUnidirectionalRelationship
-import io.opencaesar.oml.ReifiedUnidirectionalRelationshipReference
+import io.opencaesar.oml.Relationship
+import io.opencaesar.oml.RelationshipDirection
+import io.opencaesar.oml.RelationshipDirectionReference
 import io.opencaesar.oml.Rule
 import io.opencaesar.oml.RuleReference
 import io.opencaesar.oml.Scalar
@@ -83,8 +85,6 @@ import io.opencaesar.oml.TerminologyExtension
 import io.opencaesar.oml.TerminologyKind
 import io.opencaesar.oml.TerminologyStatement
 import io.opencaesar.oml.TimeScalar
-import io.opencaesar.oml.UnidirectionalRelationship
-import io.opencaesar.oml.UnidirectionalRelationshipPredicate
 import io.opencaesar.oml.UniversalRelationshipRestrictionAxiom
 import io.opencaesar.oml.UniversalScalarPropertyRestrictionAxiom
 import io.opencaesar.oml.UnreifiedRelationship
@@ -439,7 +439,7 @@ class OmlWriter {
 	
 	// Rule
 
-	def addRule(Terminology terminology, String name, UnidirectionalRelationshipPredicate consequent, Predicate...antecedent) {
+	def addRule(Terminology terminology, String name, DirectionalRelationshipPredicate consequent, Predicate...antecedent) {
 		val rule = create(Rule, terminology.iri+name)
 		rule.name = name
 		rule.consequent = consequent
@@ -448,19 +448,19 @@ class OmlWriter {
 		return rule
 	}
 	
-	// ForwardRelationship
+	// ForwardDirection
 
-	def addForwardRelationship(ReifiedRelationship relationship, String name) {
-		val forward = create(ForwardRelationship, relationship.terminology.iri+name)
+	def addForwardDirection(Relationship relationship, String name) {
+		val forward = create(ForwardDirection, relationship.terminology.iri+name)
 		forward.name = name
 		relationship.forward = forward
 		return forward
 	}
 
-	// InverseRelationship
+	// InverseDirection
 
-	def addInverseRelationship(ReifiedRelationship relationship, String name) {
-		val inverse = create(InverseRelationship, relationship.terminology.iri+name)
+	def addInverseDirection(Relationship relationship, String name) {
+		val inverse = create(InverseDirection, relationship.terminology.iri+name)
 		inverse.name = name
 		relationship.inverse = inverse
 		return inverse
@@ -551,11 +551,11 @@ class OmlWriter {
 		return reference
 	}
 	
-	// ReifiedUnidirectionalRelationshipReference
+	// RelationshipDirection
 
-	protected def dispatch createReference(ReifiedUnidirectionalRelationship relationship) {
-		val reference = create(ReifiedUnidirectionalRelationshipReference)
-		reference.relationship = relationship
+	protected def dispatch createReference(RelationshipDirection direction) {
+		val reference = create(RelationshipDirectionReference)
+		reference.direction = direction
 		return reference
 	}
 	
@@ -607,7 +607,7 @@ class OmlWriter {
 
 	def addExistentialRelationshipRestrictionAxiom(Terminology terminology, String entityIri, String relationshipIri, String typeIri) {
 		val axiom = create(ExistentialRelationshipRestrictionAxiom)
-		defer.add [axiom.relationship = resolve(UnidirectionalRelationship, relationshipIri)]
+		defer.add [axiom.relationshipDirection = resolve(RelationshipDirection, relationshipIri)]
 		defer.add [axiom.restrictedTo = resolve(Entity, typeIri)]
 		defer.add [
 			val entity = resolve(Entity, entityIri)
@@ -628,7 +628,7 @@ class OmlWriter {
 
 	def addUniversalRelationshipRestrictionAxiom(Terminology terminology, String entityIri, String relationshipIri, String typeIri) {
 		val axiom = create(UniversalRelationshipRestrictionAxiom)
-		defer.add [axiom.relationship = resolve(UnidirectionalRelationship, relationshipIri)]
+		defer.add [axiom.relationshipDirection = resolve(RelationshipDirection, relationshipIri)]
 		defer.add [axiom.restrictedTo = resolve(Entity, typeIri)]
 		defer.add [
 			val entity = resolve(Entity, entityIri)
@@ -955,11 +955,11 @@ class OmlWriter {
 		return predicate
 	}
 	
-	// UnidirectionalRelationshipPredicate
+	// DirectionalRelationshipPredicate
 
-	def createUnidirectionalRelationshipPredicate(String relationshipIri, String variable1, String variable2) {
-		val predicate = create(UnidirectionalRelationshipPredicate)
-		defer.add [predicate.relationship = resolve(UnidirectionalRelationship, relationshipIri)]
+	def createDirectionalRelationshipPredicate(String relationshipIri, String variable1, String variable2) {
+		val predicate = create(DirectionalRelationshipPredicate)
+		defer.add [predicate.relationshipDirection = resolve(RelationshipDirection, relationshipIri)]
 		predicate.variable1 = variable1
 		predicate.variable2 = variable2
 		return predicate

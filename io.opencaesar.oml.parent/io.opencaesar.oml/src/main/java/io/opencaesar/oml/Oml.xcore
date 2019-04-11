@@ -1,5 +1,6 @@
 /*
- * The package of the Ontology Modeling Language
+ * The OML package specifies the abstract syntax (metamodel) of the Ontology Modeling Language using the [Ecore](https://www.eclipse.org/modeling/emf/) language.
+ * Therefore, OML models are instances of this OML package and can be manipulated using the Java API induced by this package.     
  */
 @Ecore(
 	nsPrefix="oml",
@@ -10,7 +11,7 @@
     modelDirectory="io.opencaesar.oml/build/xcore/main", 
     complianceLevel="8.0"
 )
-@Oml(
+@BikeshedGroups(
 	Common="",
 	Literals="",
 	Graphs="",
@@ -25,564 +26,784 @@
 	TerminologyReferences="",
 	DescriptionReferences=""
 )
+@Bikeshed(
+	heading="Abstract Syntax"
+)
 package io.opencaesar.oml
 
 annotation "http://opencaesar.io/Oml" as Oml
+annotation "https://tabatkins.github.io/bikeshed/" as Bikeshed
+annotation "https://tabatkins.github.io/bikeshed/groups" as BikeshedGroups
 
 /*
- * Element is the root superclass of all OML elements 
+ * Element is the most abstract superclass of all objects in an OML model.
  */ 
- @Oml(subsection="Common")
- abstract class Element {
+@Bikeshed(subsection="Common")
+abstract class Element {
 }
 
-@Oml(subsection="Common")
- class Annotation extends Element {
-	refers AnnotationProperty property
-	contains LiteralValue value
+/*
+ * Annotation is an Element that provides a value for an AnnotationProperty placed on an [=AnnotatedElement=]. It does not have DL semantics.
+ */
+@Bikeshed(subsection="Common")
+class Annotation extends Element {
+	/*
+	 * The annotation property that has the value
+	 */
+	refers AnnotationProperty[1] property
+	/*
+	 * The value of the annotation property
+	 */
+	contains LiteralValue[1] value
 }
 
-@Oml(subsection="Common")
+/*
+ * AnnotatedElement is an Element that may have a set of Annotations.
+ */
+@Bikeshed(subsection="Common")
 abstract class AnnotatedElement extends Element {
+	/*
+	 * The set of annotations on this element
+	 */
 	contains Annotation[] annotations
 }
 
-@Oml(subsection="Common")
+/*
+ * NamedElement is an AnnotatedElement that has a name.
+ */
+@Bikeshed(subsection="Common")
 abstract class NamedElement extends AnnotatedElement {
-	String name
+	/*
+	 * The name of the element
+	 */
+	String[1] name
 }
 
-@Oml(subsection="Graphs")
+/*
+ * Graph is a NamedElement that represents the root of containment in an OML model. The name of the graph is an alias to its base IRI. 
+ */
+@Bikeshed(subsection="Graphs")
 abstract class Graph extends NamedElement {
-	String iri
+	/*
+	 * The base IRI representing the namespace of the graph 
+	 */
+	String[1] iri
 }
 
-@Oml(subsection="Graphs")
+/*
+ * Terminology is a Graph that contains TerminologyStatements and may import other Terminologies.
+ */
+@Bikeshed(subsection="Graphs")
 class Terminology extends Graph {
+	/*
+	 * The kind of terminology
+	 */
 	@Oml(annotationProperty="true")
 	TerminologyKind kind
+	/*
+	 * The set of direct imports of other terminologies
+	 */
 	contains TerminologyImport[] imports
+	/*
+	 * The set of statements in the terminology
+	 */
 	contains TerminologyStatement[] statements
 }
 
-@Oml(subsection="Graphs")
+/*
+ * TerminologyKind is an enumeration of the kinds of Terminology.
+ */
+@Bikeshed(subsection="Graphs")
 enum TerminologyKind {
+	/*
+	 * Specifies that the terminology has open-world semantics
+	 */
 	Open as "open"
+	/*
+	 * Specifies that the terminology has closed-world semantics
+	 */
 	Closed as "closed" = 1
 }
 
-@Oml(subsection="Graphs")
+/*
+ * Description is a Graph that contains DescriptionStatements and may import other Descriptions.
+ */
+@Bikeshed(subsection="Graphs")
 class Description extends Graph {
+	/*
+	 * The kind of description
+	 */
 	@Oml(annotationProperty="true")
 	DescriptionKind kind
+	/*
+	 * The set of direct imports of other descriptions
+	 */
 	contains DescriptionImport[] imports
+	/*
+	 * The set of statements in the description
+	 */
 	contains DescriptionStatement[] statements
 }
 
-@Oml(subsection="Graphs")
+/*
+ * DescriptionKind is an enumeration of the kinds of Description.
+ */
+@Bikeshed(subsection="Graphs")
 enum DescriptionKind {
+	/*
+	 * Specifies that the description is final, i.e., cannot be refined further 
+	 */
 	Final as "final"
+	/*
+	 * Specifies that the description is partial, i.e., is expected to be refined further 
+	 */
 	Partial as "partial" = 1
 }
 
-@Oml(subsection="Graphs")
+/*
+ * GraphMember is a NamedElement that is a member of a [=Graph=].
+ */
+@Bikeshed(subsection="Graphs")
 abstract class GraphMember extends NamedElement {
 }
 
-@Oml(subsection="Graphs")
+/*
+ * TerminologyMember is a GraphMember that is a member of a [=Terminology=].
+ */
+@Bikeshed(subsection="Graphs")
 abstract class TerminologyMember extends GraphMember {
 }
 
-@Oml(subsection="Terms")
+/*
+ * Term is a TerminologyMember and TerminologyStatement that is defined by a [=Terminology=] and can be specialized in a hierarchy.
+ */
+@Bikeshed(subsection="Terms")
 abstract class Term extends TerminologyMember, TerminologyStatement {
+	/*
+	 * The set of specializations of the term
+	 */
 	contains TermSpecializationAxiom[] specializations
 }
 
-@Oml(subsection="Terms")
+/*
+ * CharacterizableTerm is a Term that can be characterized by properties.
+ */
+@Bikeshed(subsection="Terms")
 abstract class CharacterizableTerm extends Term {
 }
 
-@Oml(subsection="ClassTerms")
+/*
+ * Entity is a CharacterizableTerm that can be interrelated and restricted.
+ */
+@Bikeshed(subsection="ClassTerms")
 abstract class Entity extends CharacterizableTerm {
+	/*
+	 * The set of restriction axioms on the Entity's properties
+	 */
 	contains EntityRestrictionAxiom[] restrictions
 }
 
-@Oml(subsection="ClassTerms")
+/*
+ * Aspect is an Entity that defines cross-cutting characterizations that can be mixed with those of other Entities.
+ */
+@Bikeshed(subsection="ClassTerms")
 class Aspect extends Entity {
 }
 
-@Oml(subsection="ClassTerms")
+/*
+ * Concept is an Entity that represents a concrete class of objects or ideas.
+ */
+@Bikeshed(subsection="ClassTerms")
 class Concept extends Entity {
 }
 
-@Oml(subsection="ClassTerms", reifiedRelationship="true", forward="forwardRelationship", inverse="inverseRelationship")
+/*
+ * ReifiedRelationship is a Relationship that is also reified as an Entity, i.e., can be characterized and interrelated.
+ */
+@Bikeshed(subsection="ClassTerms")
+@Oml(reifiedRelationship="true", forward="reifiedRelationshipForward", inverse="reifiedRelationshipInverse")
 class ReifiedRelationship extends Entity , Relationship {
-	@Oml(ignore="true")
-	contains ForwardRelationship forward
-	@Oml(ignore="true")
-	contains InverseRelationship inverse
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * Structure is a CharacterizableTerm that can be specified by value (i.e., cannot be referenced).
+ */
+@Bikeshed(subsection="DataTerms")
 class Structure extends CharacterizableTerm {
 }
 
-@Oml(subsection="ClassTerms")
+/*
+ * Relationship is a Term that represents a relationship from a source Term to a target Term.
+ */
+@Bikeshed(subsection="ClassTerms")
 abstract class Relationship extends Term {
+	/*
+	 * The source Term of the Relationship
+	 */
 	@Oml(source="true")
-	refers Entity source
+	refers Entity[1] source
+	/*
+	 * The target Term of the Relationship
+	 */
 	@Oml(target="true")
-	refers Entity target
+	refers Entity[1] target
+	/*
+	 * The forward direction of the relationship
+	 */
+	@Oml(ignore="true")
+	contains ForwardDirection[1] forward
+	/*
+	 * The inverse direction of the relationship
+	 */
+	@Oml(ignore="true")
+	contains InverseDirection inverse
+	/*
+	 * Whether the Relationship is functional (A->B and A->C => B=C)
+	 */
 	boolean functional
+	/*
+	 * Whether the Relationship is inverse functional (B->A and C->A => B=C)
+	 */
 	boolean inverseFunctional
+	/*
+	 * Whether the Relationship is symmetric (A->B => B->A)
+	 */
 	boolean symmetric
+	/*
+	 * Whether the Relationship is asymmetric (A->B => B!->A)
+	 */
 	boolean asymmetric
+	/*
+	 * Whether the Relationship is reflexive (A => A->A)
+	 */
 	boolean reflexive
+	/*
+	 * Whether the Relationship is reflexive (A => A!->A)
+	 */
 	boolean irreflexive
+	/*
+	 * Whether the Relationship is reflexive (A->B and B->C => A->C)
+	 */
 	boolean transitive
 }
 
-@Oml(subsection="ClassTerms", reifiedRelationship="true", forward="unreifiedRelationship")
-class UnreifiedRelationship extends Relationship , UnidirectionalRelationship {
+/*
+ * UnreifiedRelationship is a Relationship that is not reified but represents a simple reference
+ */
+@Bikeshed(subsection="ClassTerms")
+@Oml(reifiedRelationship="true", forward="unreifiedRelationshipForward", inverse="unreifiedRelationshipInverse")
+class UnreifiedRelationship extends Relationship {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * ScalarRange is a Term that represents the abstract superclass of all ScalarRanges.
+ */
+@Bikeshed(subsection="DataTerms")
 abstract class ScalarRange extends Term {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * Scalar is a ScalarRange that does not specialize other ScalarRanges.
+ */
+@Bikeshed(subsection="DataTerms")
 class Scalar extends ScalarRange {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * CharArrayScalar is a ScalarRange that specializes another ScalarRange, whose literals are represented as character arrays,
+ * and may restrict some facets of those arrays.
+ */
+@Bikeshed(subsection="DataTerms")
 abstract class CharArrayScalar extends ScalarRange {
+	/*
+	 * The exact length of the character array 
+	 */
 	Integer length
+	/*
+	 * The minimum length of the character array 
+	 */
 	Integer minLength
+	/*
+	 * The maximum length of the character array 
+	 */
 	Integer maxLength
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * BinaryScalar is a CharArrayScalar whose literals represent binary numbers, i.e., arrays of 0 and 1 digits.
+ */
+@Bikeshed(subsection="DataTerms")
 class BinaryScalar extends CharArrayScalar {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * PatternScalar is a CharArrayScalar whose literals lexically conform to a pattern specified by a regex expression.
+ */
+@Bikeshed(subsection="DataTerms")
 abstract class PatternScalar extends CharArrayScalar {
+	/*
+	 * The regex expression of the pattern
+	 */
 	String pattern
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * IRIScalar is a PatternScalar whose literals represent IRIs.
+ */
+@Bikeshed(subsection="DataTerms")
 class IRIScalar extends PatternScalar {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * PlainLiteralScalar is a PatternScalar whose literals belong to a given language.
+ */
+@Bikeshed(subsection="DataTerms")
 class PlainLiteralScalar extends PatternScalar {
+	/*
+	 * The tag of the language of the literals. See this [reference](https://www.w3.org/TR/2012/REC-rdf-plain-literal-20121211/) for more details.
+	 */
 	String language
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * StringScalar is a PatternScalar whose literals represent arbitrary string values.
+ */
+@Bikeshed(subsection="DataTerms")
 class StringScalar extends PatternScalar {
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * NumericScalar is a ScalarRange that specializes another ScalarRange, whose literals represent a numeric range,
+ * and may restrict some facets of that range.
+ */
+@Bikeshed(subsection="DataTerms")
 class NumericScalar extends ScalarRange {
+	/*
+	 * The minimum inclusive value of the numeric range
+	 */
 	contains LiteralNumber minInclusive
+	/*
+	 * The minimum exclusive value of the numeric range
+	 */
 	contains LiteralNumber minExclusive
+	/*
+	 * The maximum inclusive value of the numeric range
+	 */
 	contains LiteralNumber maxInclusive
+	/*
+	 * The maximum exclusive value of the numeric range
+	 */
 	contains LiteralNumber maxExclusive
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * TimeScalar is a ScalarRange that specializes another ScalarRange, whose literals represent time range,
+ * and may restrict some facets of that range.
+ */
+@Bikeshed(subsection="DataTerms")
 class TimeScalar extends ScalarRange {
+	/*
+	 * The minimum inclusive value of the time range
+	 */
 	contains LiteralDateTime minInclusive
+	/*
+	 * The minimum exclusive value of the time range
+	 */
 	contains LiteralDateTime minExclusive
+	/*
+	 * The maximum inclusive value of the time range
+	 */
 	contains LiteralDateTime maxInclusive
+	/*
+	 * The maximum exclusive value of the time range
+	 */
 	contains LiteralDateTime maxExclusive
 }
 
-@Oml(subsection="DataTerms")
+/*
+ * EnumerationScalar is a ScalarRange whose literals are enumerated and cannot specialize other ScalarRanges.
+ */
+@Bikeshed(subsection="DataTerms")
 class EnumerationScalar extends ScalarRange {
+	/*
+	 * The set of valid enumerated literals
+	 */
 	contains LiteralValue[] literals
 }
 
-@Oml(subsection="Terms")
+@Bikeshed(subsection="Terms")
 abstract class Property extends Term {
 }
 
-@Oml(subsection="Terms")
+@Bikeshed(subsection="Terms")
 abstract class CharacterizationProperty extends Property {
-	refers CharacterizableTerm domain
+	refers CharacterizableTerm[1] domain
 	boolean functional
 }
 
-@Oml(subsection="Terms")
+@Bikeshed(subsection="Terms")
 class StructuredProperty extends CharacterizationProperty {
-	refers Structure range
+	refers Structure[1] range
 }
 
-@Oml(subsection="Terms")
+@Bikeshed(subsection="Terms")
 class ScalarProperty extends CharacterizationProperty {
-	refers ScalarRange range
+	refers ScalarRange[1] range
 }
 
-@Oml(subsection="Terms")
+@Bikeshed(subsection="Terms")
 class AnnotationProperty extends Property {
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 class Rule extends TerminologyMember, TerminologyStatement {
-	contains Predicate[] antecedent
-	contains UnidirectionalRelationshipPredicate consequent
+	contains Predicate[1..*] antecedent
+	contains DirectionalRelationshipPredicate[1] consequent
 }
 
-@Oml(subsection="ClassTerms")
-abstract class UnidirectionalRelationship extends TerminologyMember {
+@Bikeshed(subsection="ClassTerms")
+abstract class RelationshipDirection extends TerminologyMember {
 }
 
-@Oml(subsection="ClassTerms")
-abstract class ReifiedUnidirectionalRelationship extends UnidirectionalRelationship {
+@Bikeshed(subsection="ClassTerms")
+@Oml(ignore="true")
+class ForwardDirection extends RelationshipDirection {
 }
 
-@Oml(subsection="ClassTerms", ignore="true")
-class ForwardRelationship extends ReifiedUnidirectionalRelationship {
+@Bikeshed(subsection="ClassTerms")
+@Oml(ignore="true")
+class InverseDirection extends RelationshipDirection {
 }
 
-@Oml(subsection="ClassTerms", ignore="true")
-class InverseRelationship extends ReifiedUnidirectionalRelationship {
-}
-
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class DescriptionMember extends GraphMember, DescriptionStatement {
 }
 
-@Oml(subsection="Instances")
+@Bikeshed(subsection="Instances")
 abstract class NamedInstance extends DescriptionMember , Instance {
 }
 
-@Oml(subsection="Instances")
+@Bikeshed(subsection="Instances")
 class ConceptInstance extends NamedInstance {
 	contains Assertion[] types
 }
 
-@Oml(subsection="Instances")
+@Bikeshed(subsection="Instances")
 class ReifiedRelationshipInstance extends NamedInstance {
 	contains ReifiedRelationshipInstanceTypeAssertion[] types
-	refers NamedInstance source
-	refers NamedInstance target
+	refers NamedInstance[1] source
+	refers NamedInstance[1] target
 }
 
-@Oml(subsection="References")
+@Bikeshed(subsection="References")
 abstract class NamedElementReference extends AnnotatedElement {
 }
 
-@Oml(subsection="References")
+@Bikeshed(subsection="References")
 abstract class GraphMemberReference extends NamedElementReference {
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 abstract class TerminologyMemberReference extends GraphMemberReference, TerminologyStatement {
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 abstract class TermReference extends TerminologyMemberReference {
 	contains TermSpecializationAxiom[] specializations
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 abstract class EntityReference extends TermReference {
 	contains EntityRestrictionAxiom[] restrictions
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class AspectReference extends EntityReference {
-	refers Aspect aspect
+	refers Aspect[1] aspect
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class ConceptReference extends EntityReference {
-	refers Concept concept
+	refers Concept[1] concept
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class ReifiedRelationshipReference extends EntityReference {
-	refers ReifiedRelationship relationship
+	refers ReifiedRelationship[1] relationship
 }
 
-@Oml(subsection="TerminologyReferences")
-class UnreifiedRelationshipReference extends TermReference, UnidirectionalRelationshipReference {
-	refers UnreifiedRelationship relationship
+@Bikeshed(subsection="TerminologyReferences")
+class UnreifiedRelationshipReference extends TermReference {
+	refers UnreifiedRelationship[1] relationship
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class StructureReference extends TermReference {
-	refers Structure structure
+	refers Structure[1] structure
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class ScalarRangeReference extends TermReference {
-	refers ScalarRange scalar
+	refers ScalarRange[1] scalar
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class StructuredPropertyReference extends TermReference {
-	refers StructuredProperty property
+	refers StructuredProperty[1] property
 }
 
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class ScalarPropertyReference extends TermReference {
-	refers ScalarProperty property
+	refers ScalarProperty[1] property
 }
 
-@Oml(subsection="TerminologyReferences")
-abstract class UnidirectionalRelationshipReference extends TerminologyMemberReference {
+@Bikeshed(subsection="TerminologyReferences")
+class RelationshipDirectionReference extends TerminologyMemberReference {
+	refers RelationshipDirection[1] direction
 }
 
-@Oml(subsection="TerminologyReferences")
-class ReifiedUnidirectionalRelationshipReference extends UnidirectionalRelationshipReference {
-	refers ReifiedUnidirectionalRelationship relationship
-}
-
-@Oml(subsection="TerminologyReferences")
+@Bikeshed(subsection="TerminologyReferences")
 class RuleReference extends TerminologyMemberReference {
-	refers Rule rule	
+	refers Rule[1] rule	
 }
 
-@Oml(subsection="DescriptionReferences")
+@Bikeshed(subsection="DescriptionReferences")
 abstract class DescriptionMemberReference extends GraphMemberReference, DescriptionStatement {
 }
 
-@Oml(subsection="DescriptionReferences")
+@Bikeshed(subsection="DescriptionReferences")
 abstract class NamedInstanceReference extends DescriptionMemberReference {
 	contains InstancePropertyValueAssertion[] propertyValues
 }
 
-@Oml(subsection="DescriptionReferences")
+@Bikeshed(subsection="DescriptionReferences")
 class ConceptInstanceReference extends NamedInstanceReference {
-	refers ConceptInstance instance
+	refers ConceptInstance[1] instance
 	contains ConceptInstanceTypeAssertion[] types
 }
 
-@Oml(subsection="DescriptionReferences")
+@Bikeshed(subsection="DescriptionReferences")
 class ReifiedRelationshipInstanceReference extends NamedInstanceReference {
-	refers ReifiedRelationshipInstance instance
+	refers ReifiedRelationshipInstance[1] instance
 	contains ReifiedRelationshipInstanceTypeAssertion[] types
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class GraphStatement extends AnnotatedElement {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class TerminologyStatement extends GraphStatement {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class DescriptionStatement extends GraphStatement {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 abstract class Axiom extends AnnotatedElement {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class TermSpecializationAxiom extends Axiom {
-	refers Term specializedTerm
+	refers Term[1] specializedTerm
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 abstract class EntityRestrictionAxiom extends Axiom {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 abstract class RelationshipRestrictionAxiom extends EntityRestrictionAxiom {
-	refers UnidirectionalRelationship relationship
-	refers Entity restrictedTo
+	refers RelationshipDirection[1] relationshipDirection
+	refers Entity[1] restrictedTo
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class ExistentialRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class UniversalRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 abstract class ScalarPropertyRestrictionAxiom extends EntityRestrictionAxiom {
-	refers ScalarProperty property
+	refers ScalarProperty[1] property
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 abstract class TypedScalarPropertyRestrictionAxion extends ScalarPropertyRestrictionAxiom {
-	refers ScalarRange restrictedTo
+	refers ScalarRange[1] restrictedTo
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class ExistentialScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class UniversalScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class ParticularScalarPropertyRestrictionAxiom extends ScalarPropertyRestrictionAxiom {
-	contains LiteralValue value
+	contains LiteralValue[1] value
 }
 
-@Oml(subsection="Axioms")
+@Bikeshed(subsection="Axioms")
 class StructuredPropertyRestrictionAxiom extends EntityRestrictionAxiom {
-	refers StructuredProperty property
-	contains StructureInstance value
+	refers StructuredProperty[1] property
+	contains StructureInstance[1] value
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 abstract class Assertion extends AnnotatedElement {
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 class ConceptInstanceTypeAssertion extends Assertion {
-	refers Concept concept	
+	refers Concept[1] concept	
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 class ReifiedRelationshipInstanceTypeAssertion extends Assertion {
-	refers ReifiedRelationship relationship	
+	refers ReifiedRelationship[1] relationship	
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 abstract class InstancePropertyValueAssertion extends Assertion {
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 class ScalarPropertyValueAssertion extends InstancePropertyValueAssertion {
-	refers ScalarProperty property
-	contains LiteralValue value
+	refers ScalarProperty[1] property
+	contains LiteralValue[1] value
 }
 
-@Oml(subsection="Assertions")
+@Bikeshed(subsection="Assertions")
 class StructuredPropertyValueAssertion extends InstancePropertyValueAssertion {
-	refers StructuredProperty property
-	contains StructureInstance value
+	refers StructuredProperty[1] property
+	contains StructureInstance[1] value
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class GraphImport extends Element {
-	String importURI
+	String[1] importURI
 	String importedNamespace
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class TerminologyImport extends GraphImport {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 class TerminologyExtension extends TerminologyImport {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 abstract class DescriptionImport extends GraphImport {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 class DescriptionUsage extends DescriptionImport {
 }
 
-@Oml(subsection="Graphs")
+@Bikeshed(subsection="Graphs")
 class DescriptionRefinement extends DescriptionImport {
 }
 
-@Oml(subsection="Instances")
+@Bikeshed(subsection="Instances")
 abstract class Instance extends Element {
 	contains InstancePropertyValueAssertion[] propertyValues
 }
 
-@Oml(subsection="Instances")
+@Bikeshed(subsection="Instances")
 class StructureInstance extends Instance {
-	refers Structure structure
+	refers Structure[1] structure
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 abstract class LiteralValue extends Element {
 	refers ScalarRange valueType
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralBoolean extends LiteralValue {
 	boolean value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralDateTime extends LiteralValue {
-	String value
+	String[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralString extends LiteralValue {
-	String value
+	String[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralUUID extends LiteralValue {
-	String value
+	String[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralURI extends LiteralValue {
-	String value
+	String[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 abstract class LiteralNumber extends LiteralValue {
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralReal extends LiteralNumber {
-	Double value
+	Double[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralRational extends LiteralNumber {
-	Double value
+	Double[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralFloat extends LiteralNumber {
-	Float value
+	Float[1] value
 }
 
-@Oml(subsection="Literals")
+@Bikeshed(subsection="Literals")
 class LiteralDecimal extends LiteralNumber {
-	BigDecimal value
+	BigDecimal[1] value
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 abstract class Predicate extends Element {
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 class EntityPredicate extends Predicate {
-	refers Entity entity
-	String variable
+	refers Entity[1] entity
+	String[1] variable
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 abstract class RelationshipPredicate extends Predicate {
-	String variable1
-	String variable2
+	String[1] variable1
+	String[1] variable2
 }
 
-@Oml(subsection="Rules")
-class UnidirectionalRelationshipPredicate extends RelationshipPredicate {
-	refers UnidirectionalRelationship relationship
+@Bikeshed(subsection="Rules")
+class DirectionalRelationshipPredicate extends RelationshipPredicate {
+	refers RelationshipDirection[1] relationshipDirection
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 class ReifiedRelationshipPredicate extends RelationshipPredicate {
-	refers ReifiedRelationship relationship
+	refers ReifiedRelationship[1] relationship
 	ReifiedRelationshipPredicateKind kind
 }
 
-@Oml(subsection="Rules")
+@Bikeshed(subsection="Rules")
 enum ReifiedRelationshipPredicateKind {
 	Source as "source"
 	InverseSource as "inverseSource" = 1

@@ -111,7 +111,7 @@ class Oml {
 	static def TerminologyMember[] getMembers(Terminology terminology) {
 		val members = new ArrayList
 		members += terminology.statements.filter(TerminologyMember)
-		members += members.filter(ReifiedRelationship).map[a|a.unidirectionalRelationships].flatten
+		members += members.filter(Relationship).map[a|a.relationshipDirections].flatten
 		members
 	}
 
@@ -168,32 +168,32 @@ class Oml {
 	static def ReifiedRelationship[] getSpecializedReifiedRelationships(ReifiedRelationship relationship) {
 		relationship.specializedTerms.filter(ReifiedRelationship)
 	}
-	
-	static def getUnidirectionalRelationships(ReifiedRelationship relationship) {
-		val unidirectional = new ArrayList<ReifiedUnidirectionalRelationship>
-		if (relationship.forward !== null) {
-			unidirectional += relationship.forward
-		}
-		if (relationship.inverse !== null) {
-			unidirectional += relationship.inverse
-		}
-		unidirectional
-	}
-	
+		
 	// Structure
 	
 	// Relationship
+
+	static def getRelationshipDirections(Relationship relationship) {
+		val directions = new ArrayList<RelationshipDirection>
+		if (relationship.forward !== null) {
+			directions += relationship.forward
+		}
+		if (relationship.inverse !== null) {
+			directions += relationship.inverse
+		}
+		directions
+	}
 	
 	// UnreifiedRelationship
 
 	static def UnreifiedRelationship[] getSpecializedUnreifiedRelationships(UnreifiedRelationship relationship) {
-		relationship.specializations.map[specializedTerm].filter(UnreifiedRelationship)
+		relationship.specializedTerms.filter(UnreifiedRelationship)
 	}
 	
 	// ScalarRange
 	
 	static def ScalarRange getSpecializedScalarRange(ScalarRange scalar) {
-		scalar.specializations.map[specializedTerm].filter(ScalarRange).head
+		scalar.specializedTerms.filter(ScalarRange).head
 	}
 	
 	// Scalar
@@ -223,65 +223,63 @@ class Oml {
 	// StructuredProperty
 	
 	static def StructuredProperty[] getSpecializedStructuredProperty(StructuredProperty property) {
-		property.specializations.map[specializedTerm].filter(StructuredProperty)
+		property.specializedTerms.filter(StructuredProperty)
 	}
 
 	// ScalarProperty
 	
 	static def ScalarProperty[] getSpecializedScalarProperty(ScalarProperty property) {
-		property.specializations.map[specializedTerm].filter(ScalarProperty)
+		property.specializedTerms.filter(ScalarProperty)
 	}
 	
 	// AnnotationProperty
 	
 	// Rule
 
-	// UnidirectionalRelationship
+	// RelationshipDirection
 	
-	static def Terminology getTerminology(UnidirectionalRelationship relationship) {
-		relationship.graph as Terminology
+	static def Terminology getTerminology(RelationshipDirection direction) {
+		direction.graph as Terminology
 	}
 
-	// ReifiedUnidirectionalRelationship
-	
-	static def ReifiedRelationship getReifiedRelationship(ReifiedUnidirectionalRelationship relationship) {
-		relationship.eContainer as ReifiedRelationship
+	static def Relationship getRelationship(RelationshipDirection direction) {
+		direction.eContainer as Relationship
 	}
 	
-	static def String getSourceIri(ReifiedUnidirectionalRelationship relationship) {
-		relationship.iri + 'Source'
+	static def String getSourceIri(RelationshipDirection direction) {
+		direction.iri + 'Source'
 	}
 	
-	static def String getTargetIri(ReifiedUnidirectionalRelationship relationship) {
-		relationship.iri + 'Target'
+	static def String getTargetIri(RelationshipDirection direction) {
+		direction.iri + 'Target'
 	}
 
-	// ForwardRelationship
+	// ForwardDirection
 	
-	static def Entity getSource(ForwardRelationship relationship) {
-		(relationship.eContainer as ReifiedRelationship).source
+	static def Entity getSource(ForwardDirection direction) {
+		direction.relationship.source
 	}
 	
-	static def Entity getTarget(ForwardRelationship relationship) {
-		(relationship.eContainer as ReifiedRelationship).target
+	static def Entity getTarget(ForwardDirection direction) {
+		direction.relationship.target
 	}
 	
-	static def InverseRelationship getInverseRelationship(ForwardRelationship relationship) {
-		relationship.reifiedRelationship.inverse
+	static def InverseDirection getInverseDirection(ForwardDirection direction) {
+		direction.relationship.inverse
 	}
 	
-	// InverseRelationship
+	// InverseDirection
 
-	static def Entity getSource(InverseRelationship relationship) {
-		(relationship.eContainer as ReifiedRelationship).target
-	}
-
-	static def Entity getTarget(InverseRelationship relationship) {
-		(relationship.eContainer as ReifiedRelationship).source
+	static def Entity getSource(InverseDirection direction) {
+		direction.relationship.target
 	}
 
-	static def ForwardRelationship getForwardRelationship(InverseRelationship relationship) {
-		relationship.reifiedRelationship.forward
+	static def Entity getTarget(InverseDirection direction) {
+		direction.relationship.source
+	}
+
+	static def ForwardDirection getForwardRelationship(InverseDirection direction) {
+		direction.relationship.forward
 	}
 	
 	// DescriptionMember
@@ -354,12 +352,10 @@ class Oml {
 		reference.property
 	}
 	
-	// UnidirectionalRelationshipReference
-
-	// ReifiedUnidirectionalRelationshipReference
+	// RelationshipDirectionReference
 	
-	static dispatch def ReifiedUnidirectionalRelationship resolve(ReifiedUnidirectionalRelationshipReference reference) {
-		reference.relationship
+	static dispatch def RelationshipDirection resolve(RelationshipDirectionReference reference) {
+		reference.direction
 	}
 	
 	// RuleReference
@@ -561,7 +557,7 @@ class Oml {
 		predicate.rule.graph.iri+predicate.variable2
 	}
 	
-	// UnidirectionalRelationshipPredicate
+	// DirectionalRelationshipPredicate
 	
 	// ReifiedRelationshipPredicate
 }

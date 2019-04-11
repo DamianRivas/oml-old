@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="251px" preserveAspectRatio="none" style="width:195px;height:251px;" version="1.1" viewBox="0 0 195 251" width="195px" zoomAndPan="magnify"><defs><filter height="300%" id="f91whv77htoe1" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--class GraphMemberReference--><a target="_top" xlink:actuate="onRequest" xlink:href="#oml-GraphMemberReference" xlink:show="new" xlink:title="#oml-GraphMemberReference" xlink:type="simple"><rect fill="#FFFFFF" filter="url(#f91whv77htoe1)" height="40" id="GraphMemberReference" style="stroke: #000000; stroke-width: 1.5;" width="174" x="8" y="200"/><rect fill="#FFFFFF" height="32" style="stroke: #000000; stroke-width: 1.5;" width="174" x="8" y="200"/><ellipse cx="23" cy="216" fill="#A9DCDF" rx="11" ry="11" style="stroke: #000000; stroke-width: 1.0;"/><path d="M23.1133,211.3481 L21.9595,216.4199 L24.2754,216.4199 Z M21.6191,209.1069 L24.6157,209.1069 L27.9609,221.5 L25.5122,221.5 L24.7485,218.437 L21.4697,218.437 L20.7227,221.5 L18.2739,221.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="142" x="37" y="220.5352">GraphMemberReference</text><line style="stroke: #000000; stroke-width: 1.5;" x1="9" x2="181" y1="232" y2="232"/></a><!--class NamedElementReference--><a target="_top" xlink:actuate="onRequest" xlink:href="#oml-NamedElementReference" xlink:show="new" xlink:title="#oml-NamedElementReference" xlink:type="simple"><rect fill="#FFFFFF" filter="url(#f91whv77htoe1)" height="40" id="NamedElementReference" style="stroke: #000000; stroke-width: 1.5;" width="178" x="6" y="100"/><rect fill="#FFFFFF" height="32" style="stroke: #000000; stroke-width: 1.5;" width="178" x="6" y="100"/><ellipse cx="21" cy="116" fill="#A9DCDF" rx="11" ry="11" style="stroke: #000000; stroke-width: 1.0;"/><path d="M21.1133,111.3481 L19.9595,116.4199 L22.2754,116.4199 Z M19.6191,109.1069 L22.6157,109.1069 L25.9609,121.5 L23.5122,121.5 L22.7485,118.437 L19.4697,118.437 L18.7227,121.5 L16.2739,121.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="146" x="35" y="120.5352">NamedElementReference</text><line style="stroke: #000000; stroke-width: 1.5;" x1="7" x2="183" y1="132" y2="132"/></a><!--class AnnotatedElement--><a target="_top" xlink:actuate="onRequest" xlink:href="#oml-AnnotatedElement" xlink:show="new" xlink:title="#oml-AnnotatedElement" xlink:type="simple"><rect fill="#D3D3D3" filter="url(#f91whv77htoe1)" height="32" id="AnnotatedElement" style="stroke: #000000; stroke-width: 1.5;" width="137" x="26.5" y="8"/><ellipse cx="41.5" cy="24" fill="#A9DCDF" rx="11" ry="11" style="stroke: #000000; stroke-width: 1.0;"/><path d="M41.6133,19.3481 L40.4595,24.4199 L42.7754,24.4199 Z M40.1191,17.1069 L43.1157,17.1069 L46.4609,29.5 L44.0122,29.5 L43.2485,26.437 L39.9697,26.437 L39.2227,29.5 L36.7739,29.5 Z "/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="105" x="55.5" y="28.5352">AnnotatedElement</text></a><!--link NamedElementReference to GraphMemberReference--><a target="_top" xlink:actuate="onRequest" xlink:href="#oml-NamedElementReference" xlink:show="new" xlink:title="#oml-NamedElementReference" xlink:type="simple"><path d="M95,160.6685 C95,174.1403 95,188.5491 95,199.7936 " fill="none" id="NamedElementReference-GraphMemberReference" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="none" points="88.0001,160.2365,95,140.2365,102.0001,160.2365,88.0001,160.2365" style="stroke: #000000; stroke-width: 1.0;"/></a><!--link AnnotatedElement to NamedElementReference--><a target="_top" xlink:actuate="onRequest" xlink:href="#oml-AnnotatedElement" xlink:show="new" xlink:title="#oml-AnnotatedElement" xlink:type="simple"><path d="M95,60.7643 C95,74.083 95,88.6244 95,99.9666 " fill="none" id="AnnotatedElement-NamedElementReference" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="none" points="88.0001,60.2851,95,40.2851,102.0001,60.2851,88.0001,60.2851" style="stroke: #000000; stroke-width: 1.0;"/></a><!--
+@startuml
+skinparam classBackgroundColor LightGray
+skinparam classBorderColor Black
+skinparam enumBorderColor Black
+skinparam ArrowColor Black
+hide methods
+abstract class GraphMemberReference [[#oml-GraphMemberReference]] #white {
+}
+GraphMemberReference -up-|> NamedElementReference [[#oml-NamedElementReference]]
+abstract class NamedElementReference [[#oml-NamedElementReference]] #white {
+}
+abstract class AnnotatedElement [[#oml-AnnotatedElement]]
+hide AnnotatedElement members
+NamedElementReference -up-|> AnnotatedElement [[#oml-AnnotatedElement]]
+@enduml
+
+PlantUML version 1.2019.00(Sun Jan 13 07:46:42 PST 2019)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Java Version: 1.8.0_181-b13
+Operating System: Mac OS X
+OS Version: 10.13.6
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

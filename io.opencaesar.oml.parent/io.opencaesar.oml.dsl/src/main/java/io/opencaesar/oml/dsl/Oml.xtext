@@ -58,7 +58,7 @@ GraphMember:
 TerminologyMember:
 	Term |
 	Rule |
-	->UnidirectionalRelationship;
+	->RelationshipDirection;
 
 Term:
 	CharacterizableTerm |
@@ -92,8 +92,8 @@ ReifiedRelationship:
 	'reified' 'relationship' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
 		'source' source=[Entity|Reference]
 		'target' target=[Entity|Reference]
-		forward=ForwardRelationship
-		(inverse=InverseRelationship)?
+		forward=ForwardDirection
+		(inverse=InverseDirection)?
 		((functional?='functional')? &
 		 (inverseFunctional?='inverseFunctional')? &
 		 (symmetric?='symmetric')? &
@@ -118,6 +118,8 @@ UnreifiedRelationship:
 	'unreified' 'relationship' name=ID ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? '{'
 		'source' source=[Entity|Reference]
 		'target' target=[Entity|Reference]
+		forward=ForwardDirection
+		(inverse=InverseDirection)?
 		((functional?='functional')? &
 		 (inverseFunctional?='inverseFunctional')? &
 		 (symmetric?='symmetric')? &
@@ -241,22 +243,18 @@ AnnotationProperty:
 Rule:
 	annotations+=Annotation*
 	'rule' name=ID '{'
-		antecedent+=Predicate ('&' antecedent+=Predicate)* '=>' consequent=UnidirectionalRelationshipPredicate
+		antecedent+=Predicate ('&' antecedent+=Predicate)* '=>' consequent=DirectionalRelationshipPredicate
 	'}';
-
-UnidirectionalRelationship:
-	UnreifiedRelationship |
-	ReifiedUnidirectionalRelationship;
 	
-ReifiedUnidirectionalRelationship:	
-	ForwardRelationship |
-	InverseRelationship;
+RelationshipDirection:	
+	ForwardDirection |
+	InverseDirection;
 
-ForwardRelationship:
+ForwardDirection:
 	annotations+=Annotation*
 	'forward' name=ID;
 
-InverseRelationship:
+InverseDirection:
 	annotations+=Annotation*
 	'inverse' name=ID;
 
@@ -290,7 +288,7 @@ GraphMemberReference:
 
 TerminologyMemberReference:
 	TermReference |
-	->UnidirectionalRelationshipReference |
+	RelationshipDirectionReference |
 	RuleReference;
 	
 TermReference:
@@ -349,12 +347,8 @@ ScalarPropertyReference:
 	'ref' 'scalar' 'property' property=[ScalarProperty|Reference] ('specializes' specializations+=TermSpecializationAxiom (',' specializations+=TermSpecializationAxiom)*)? ('{'
 	'}')?;
 
-UnidirectionalRelationshipReference:
-	UnreifiedRelationshipReference |
-	ReifiedUnidirectionalRelationshipReference;
-
-ReifiedUnidirectionalRelationshipReference:
-	annotations+=Annotation* 'ref' 'relationship' relationship=[ReifiedUnidirectionalRelationship|Reference]('{'
+RelationshipDirectionReference:
+	annotations+=Annotation* 'ref' 'relationship' direction=[RelationshipDirection|Reference]('{'
 	'}')?;
 
 RuleReference:
@@ -411,11 +405,11 @@ RelationshipRestrictionAxiom:
 
 ExistentialRelationshipRestrictionAxiom:
 	annotations+=Annotation*
-	'restricts' 'some' relationship=[UnidirectionalRelationship|Reference] 'to' restrictedTo=[Entity|Reference];
+	'restricts' 'some' relationshipDirection=[RelationshipDirection|Reference] 'to' restrictedTo=[Entity|Reference];
 
 UniversalRelationshipRestrictionAxiom:
 	annotations+=Annotation*
-	'restricts' 'every' relationship=[UnidirectionalRelationship|Reference] 'to' restrictedTo=[Entity|Reference];
+	'restricts' 'every' relationshipDirection=[RelationshipDirection|Reference] 'to' restrictedTo=[Entity|Reference];
 
 ScalarPropertyRestrictionAxiom:
 	TypedScalarPropertyRestrictionAxion |
@@ -542,11 +536,11 @@ EntityPredicate:
 	entity=[Entity|Reference]'(' variable=ID ')';
 
 RelationshipPredicate:
-	UnidirectionalRelationshipPredicate |
+	DirectionalRelationshipPredicate |
 	ReifiedRelationshipPredicate;
 	
-UnidirectionalRelationshipPredicate:
-	relationship=[UnidirectionalRelationship|Reference] '(' variable1=ID ',' variable2=ID ')';
+DirectionalRelationshipPredicate:
+	relationshipDirection=[RelationshipDirection|Reference] '(' variable1=ID ',' variable2=ID ')';
 
 ReifiedRelationshipPredicate:	
 	relationship=[ReifiedRelationship|Reference] '(' kind=ReifiedRelationshipPredicateKind ',' variable1=ID ',' variable2=ID ')';

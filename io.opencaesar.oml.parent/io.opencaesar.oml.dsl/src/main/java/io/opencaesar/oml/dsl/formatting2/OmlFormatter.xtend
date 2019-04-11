@@ -17,13 +17,14 @@ import io.opencaesar.oml.ConceptReference
 import io.opencaesar.oml.Description
 import io.opencaesar.oml.DescriptionRefinement
 import io.opencaesar.oml.DescriptionUsage
+import io.opencaesar.oml.DirectionalRelationshipPredicate
 import io.opencaesar.oml.EntityPredicate
 import io.opencaesar.oml.EnumerationScalar
 import io.opencaesar.oml.ExistentialRelationshipRestrictionAxiom
 import io.opencaesar.oml.ExistentialScalarPropertyRestrictionAxiom
-import io.opencaesar.oml.ForwardRelationship
+import io.opencaesar.oml.ForwardDirection
 import io.opencaesar.oml.IRIScalar
-import io.opencaesar.oml.InverseRelationship
+import io.opencaesar.oml.InverseDirection
 import io.opencaesar.oml.LiteralValue
 import io.opencaesar.oml.NumericScalar
 import io.opencaesar.oml.ParticularScalarPropertyRestrictionAxiom
@@ -34,7 +35,7 @@ import io.opencaesar.oml.ReifiedRelationshipInstanceReference
 import io.opencaesar.oml.ReifiedRelationshipInstanceTypeAssertion
 import io.opencaesar.oml.ReifiedRelationshipPredicate
 import io.opencaesar.oml.ReifiedRelationshipReference
-import io.opencaesar.oml.ReifiedUnidirectionalRelationshipReference
+import io.opencaesar.oml.RelationshipDirectionReference
 import io.opencaesar.oml.Rule
 import io.opencaesar.oml.Scalar
 import io.opencaesar.oml.ScalarProperty
@@ -53,7 +54,6 @@ import io.opencaesar.oml.TermSpecializationAxiom
 import io.opencaesar.oml.Terminology
 import io.opencaesar.oml.TerminologyExtension
 import io.opencaesar.oml.TimeScalar
-import io.opencaesar.oml.UnidirectionalRelationshipPredicate
 import io.opencaesar.oml.UniversalRelationshipRestrictionAxiom
 import io.opencaesar.oml.UniversalScalarPropertyRestrictionAxiom
 import io.opencaesar.oml.UnreifiedRelationship
@@ -160,13 +160,15 @@ class OmlFormatter extends AbstractFormatter2 {
 		relationship.formatBraces(document)
 		relationship.regionFor.keyword(unreifiedRelationshipAccess.sourceKeyword_6).prepend[newLine]
 		relationship.regionFor.keyword(unreifiedRelationshipAccess.targetKeyword_8).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.functionalFunctionalKeyword_10_0_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.inverseFunctionalInverseFunctionalKeyword_10_1_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.symmetricSymmetricKeyword_10_2_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.asymmetricAsymmetricKeyword_10_3_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.reflexiveReflexiveKeyword_10_4_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.irreflexiveIrreflexiveKeyword_10_5_0).prepend[newLine]
-		relationship.regionFor.keyword(unreifiedRelationshipAccess.transitiveTransitiveKeyword_10_6_0).prepend[newLine]
+		relationship.forward?.format.prepend[newLine]
+		relationship.inverse?.format.prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.functionalFunctionalKeyword_12_0_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.inverseFunctionalInverseFunctionalKeyword_12_1_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.symmetricSymmetricKeyword_12_2_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.asymmetricAsymmetricKeyword_12_3_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.reflexiveReflexiveKeyword_12_4_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.irreflexiveIrreflexiveKeyword_12_5_0).prepend[newLine]
+		relationship.regionFor.keyword(unreifiedRelationshipAccess.transitiveTransitiveKeyword_12_6_0).prepend[newLine]
 	}
 
 	def dispatch void format(Scalar scalar, extension IFormattableDocument document) {
@@ -287,14 +289,14 @@ class OmlFormatter extends AbstractFormatter2 {
 		property.formatBraces(document)
 	}
 
-	def dispatch void format(ForwardRelationship relationship, extension IFormattableDocument document) {
-		relationship.annotations.forEach[format.append[newLine]]
-		relationship.regionFor.keyword(forwardRelationshipAccess.forwardKeyword_1).append[oneSpace]
+	def dispatch void format(ForwardDirection direction, extension IFormattableDocument document) {
+		direction.annotations.forEach[format.append[newLine]]
+		direction.regionFor.keyword(forwardDirectionAccess.forwardKeyword_1).append[oneSpace]
 	}
 
-	def dispatch void format(InverseRelationship relationship, extension IFormattableDocument document) {
-		relationship.annotations.forEach[format.append[newLine]]
-		relationship.regionFor.keyword(inverseRelationshipAccess.inverseKeyword_1).append[oneSpace]
+	def dispatch void format(InverseDirection direction, extension IFormattableDocument document) {
+		direction.annotations.forEach[format.append[newLine]]
+		direction.regionFor.keyword(inverseDirectionAccess.inverseKeyword_1).append[oneSpace]
 	}
 
 	def dispatch void format(ConceptInstance instance, extension IFormattableDocument document) {
@@ -390,10 +392,10 @@ class OmlFormatter extends AbstractFormatter2 {
 		reference.formatBraces(document)
 	}
 
-	def dispatch void format(ReifiedUnidirectionalRelationshipReference reference, extension IFormattableDocument document) {
+	def dispatch void format(RelationshipDirectionReference reference, extension IFormattableDocument document) {
 		reference.annotations.forEach[format.append[newLine]]
-		reference.regionFor.keyword(reifiedUnidirectionalRelationshipReferenceAccess.refKeyword_1).append[oneSpace]
-		reference.regionFor.keyword(reifiedUnidirectionalRelationshipReferenceAccess.relationshipKeyword_2).surround[oneSpace]
+		reference.regionFor.keyword(relationshipDirectionReferenceAccess.refKeyword_1).append[oneSpace]
+		reference.regionFor.keyword(relationshipDirectionReferenceAccess.relationshipKeyword_2).surround[oneSpace]
 		reference.formatBraces(document)
 	}
 
@@ -495,9 +497,9 @@ class OmlFormatter extends AbstractFormatter2 {
 		predicate.regionFor.keyword(entityPredicateAccess.rightParenthesisKeyword_3).prepend[noSpace]
 	}
 
-	def dispatch void format(UnidirectionalRelationshipPredicate predicate, extension IFormattableDocument document) {
-		predicate.regionFor.keyword(unidirectionalRelationshipPredicateAccess.leftParenthesisKeyword_1).surround[noSpace]
-		predicate.regionFor.keyword(unidirectionalRelationshipPredicateAccess.rightParenthesisKeyword_5).prepend[noSpace]
+	def dispatch void format(DirectionalRelationshipPredicate predicate, extension IFormattableDocument document) {
+		predicate.regionFor.keyword(directionalRelationshipPredicateAccess.leftParenthesisKeyword_1).surround[noSpace]
+		predicate.regionFor.keyword(directionalRelationshipPredicateAccess.rightParenthesisKeyword_5).prepend[noSpace]
 		predicate.formatCommas(document)
 	}
 

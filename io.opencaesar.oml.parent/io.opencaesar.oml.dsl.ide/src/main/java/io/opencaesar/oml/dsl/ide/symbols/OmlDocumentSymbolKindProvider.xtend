@@ -17,8 +17,8 @@ class OmlDocumentSymbolKindProvider extends DocumentSymbolKindProvider {
 			case SCALAR_RANGE.isSuperTypeOf(clazz): Enum
 			case REIFIED_RELATIONSHIP.isSuperTypeOf(clazz): Class
 			case UNREIFIED_RELATIONSHIP.isSuperTypeOf(clazz): Property
-			case FORWARD_RELATIONSHIP.isSuperTypeOf(clazz): Property
-			case INVERSE_RELATIONSHIP.isSuperTypeOf(clazz): Property
+			case FORWARD_DIRECTION.isSuperTypeOf(clazz): Property
+			case INVERSE_DIRECTION.isSuperTypeOf(clazz): Property
 			case SCALAR_PROPERTY.isSuperTypeOf(clazz): Property
 			case STRUCTURED_PROPERTY.isSuperTypeOf(clazz): Property
 			case CONCEPT_INSTANCE.isSuperTypeOf(clazz): Object

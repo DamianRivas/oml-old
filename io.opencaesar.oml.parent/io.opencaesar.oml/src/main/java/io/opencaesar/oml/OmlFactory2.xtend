@@ -30,8 +30,8 @@ class OmlFactory2 {
 			case ScalarProperty: factory.createScalarProperty
 			case AnnotationProperty: factory.createAnnotationProperty
 			case Rule: factory.createRule
-			case ForwardRelationship: factory.createForwardRelationship
-			case InverseRelationship: factory.createInverseRelationship
+			case ForwardDirection: factory.createForwardDirection
+			case InverseDirection: factory.createInverseDirection
 			case ConceptInstance: factory.createConceptInstance
 			case ReifiedRelationshipInstance: factory.createReifiedRelationshipInstance
 			case AspectReference: factory.createAspectReference
@@ -42,7 +42,7 @@ class OmlFactory2 {
 			case ScalarRangeReference: factory.createScalarRangeReference
 			case StructuredPropertyReference: factory.createStructuredPropertyReference
 			case ScalarPropertyReference: factory.createScalarPropertyReference
-			case ReifiedUnidirectionalRelationshipReference: factory.createReifiedUnidirectionalRelationshipReference
+			case RelationshipDirectionReference: factory.createRelationshipDirectionReference
 			case RuleReference: factory.createRuleReference
 			case ConceptInstanceReference: factory.createConceptInstanceReference
 			case ReifiedRelationshipInstanceReference: factory.createReifiedRelationshipInstanceReference
@@ -71,7 +71,7 @@ class OmlFactory2 {
 			case LiteralFloat: factory.createLiteralFloat
 			case LiteralDecimal: factory.createLiteralDecimal
 			case EntityPredicate: factory.createEntityPredicate
-			case UnidirectionalRelationshipPredicate: factory.createUnidirectionalRelationshipPredicate
+			case DirectionalRelationshipPredicate: factory.createDirectionalRelationshipPredicate
 			case ReifiedRelationshipPredicate: factory.createReifiedRelationshipPredicate
 		} as T
 	}
