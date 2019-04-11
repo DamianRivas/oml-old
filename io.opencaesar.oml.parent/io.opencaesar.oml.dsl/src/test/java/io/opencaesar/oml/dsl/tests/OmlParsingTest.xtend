@@ -24,9 +24,10 @@ class OmlParsingTest {
 			open terminology <http://T#> as t {
 				concept c
 				aspect  a
-				unreified relationship r {
+				unreified relationship R {
 					source c
 					target a
+					forward r
 				}
 			}
 		''')
