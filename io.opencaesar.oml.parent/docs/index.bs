@@ -82,6 +82,10 @@ path: getting-started.md
 </pre>
 
 <pre class=include>
+path: documentation.md
+</pre>
+
+<pre class=include>
 path: concrete-syntax.md
 </pre>
 		
@@ -91,6 +95,10 @@ path: io.opencaesar.oml.md
 
 <pre class=include>
 path: public-api.md
+</pre>
+
+<pre class=include>
+path: owl2-dl.md
 </pre>
 
 <pre class=include>

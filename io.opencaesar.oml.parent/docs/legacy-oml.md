@@ -1,2 +1,2 @@
-# Annex: Legacy OML
+# Annex: Mapping to Legacy OML
 
