@@ -431,198 +431,411 @@ class EnumerationScalar extends ScalarRange {
 	contains LiteralValue[] literals
 }
 
+/*
+ * Property is a Term that adds an attribute to an Element. It is the abstract supertype of all Property types.
+ */
 @Bikeshed(subsection="Terms")
 abstract class Property extends Term {
 }
 
+/*
+ * CharacterizationProperty is a Property that adds an attribute with DL semantics to a [=CharacterizableTerm=].
+ */
 @Bikeshed(subsection="Terms")
 abstract class CharacterizationProperty extends Property {
+	/*
+	 * The domain of the property that is characterized by it
+	 */
 	refers CharacterizableTerm[1] domain
+	/*
+	 * Whether the property is functional (has maximum one value)
+	 */
 	boolean functional
 }
 
+/*
+ * StructuredProperty is a CharacterizationProperty whose values are instances of some Structure.
+ */
 @Bikeshed(subsection="Terms")
 class StructuredProperty extends CharacterizationProperty {
+	/*
+	 * The structure that defines the range of the property
+	 */
 	refers Structure[1] range
 }
 
+/*
+ * ScalarProperty is a CharacterizationProperty whose values are literals of some ScalarRange.
+ */
 @Bikeshed(subsection="Terms")
 class ScalarProperty extends CharacterizationProperty {
+	/*
+	 * The scalar that defines the range of the property 
+	 */
 	refers ScalarRange[1] range
 }
 
+/*
+ * AnnotationProperty is a Property that adds an attribute with no DL semantics to an [=AnnotatedElement=].
+ */
 @Bikeshed(subsection="Terms")
 class AnnotationProperty extends Property {
 }
 
+/*
+ * Rule is both a TerminologyMember and a TerminologyStatement and specifies additional inference logic beside the default provided by Description Logic. 
+ */
 @Bikeshed(subsection="Rules")
 class Rule extends TerminologyMember, TerminologyStatement {
+	/*
+	 * The (ANDed) predicates that need to hold in order for the rule to infer the consequent
+	 */
 	contains Predicate[1..*] antecedent
+	/*
+	 * The predicate that is inferred when the antecedent predicates hold
+	 */
 	contains DirectionalRelationshipPredicate[1] consequent
 }
 
+/*
+ * RelationshipDirection is a TerminologyMember that is owned by a [=Relationship] and specifies the characteristics (e.g., name) of one of its directions.
+ */
 @Bikeshed(subsection="ClassTerms")
 abstract class RelationshipDirection extends TerminologyMember {
 }
 
+/*
+ * ForwardDirection is a RelationshipDirection that characterizes the forward direction of a [=Relationship=].
+ */
 @Bikeshed(subsection="ClassTerms")
 @Oml(ignore="true")
 class ForwardDirection extends RelationshipDirection {
 }
 
+/*
+ * InverseDirection is a RelationshipDirection that characterizes the inverse direction of a [=Relationship=].
+ */
 @Bikeshed(subsection="ClassTerms")
 @Oml(ignore="true")
 class InverseDirection extends RelationshipDirection {
 }
 
+/*
+ * DescriptionMember is a GraphMember that is specified as a DescriptionStatement.  
+ */
 @Bikeshed(subsection="Graphs")
 abstract class DescriptionMember extends GraphMember, DescriptionStatement {
 }
 
+/*
+ * NamedInstance is a DescriptionMember that represents an Instance (of some [=Entity=]) with a name.
+ */
 @Bikeshed(subsection="Instances")
 abstract class NamedInstance extends DescriptionMember , Instance {
 }
 
+/*
+ * ConceptInstance is a NamedInstance that represents an instance of a [=Concept=].
+ */
 @Bikeshed(subsection="Instances")
 class ConceptInstance extends NamedInstance {
-	contains Assertion[] types
+	/*
+	 * The set of type assertions for the instance
+	 */
+	contains ConceptInstanceTypeAssertion[] types
 }
 
+/*
+ * ReifiedRelationshipInstance is a NamedInstance that represents an instance of a [=ReifiedRelationship=].
+ */
 @Bikeshed(subsection="Instances")
 class ReifiedRelationshipInstance extends NamedInstance {
+	/*
+	 * The set of type assertions for the instance
+	 */
 	contains ReifiedRelationshipInstanceTypeAssertion[] types
+	/*
+	 * The source instance of the relationship instance
+	 */
 	refers NamedInstance[1] source
+	/*
+	 * The target instance of the relationship instance
+	 */
 	refers NamedInstance[1] target
 }
 
+/*
+ * NamedElementReference is a AnnotatedElement that represents a reference to a [=NamedElement=].
+ */
 @Bikeshed(subsection="References")
 abstract class NamedElementReference extends AnnotatedElement {
 }
 
+/*
+ * GraphMemberReference is a NamedElementReference that represents a reference to a [=GraphMember=].
+ */
 @Bikeshed(subsection="References")
 abstract class GraphMemberReference extends NamedElementReference {
 }
 
+/*
+ * TerminologyMemberReference is a GraphMemberReference that represents a reference to a [=TerminologyMember=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 abstract class TerminologyMemberReference extends GraphMemberReference, TerminologyStatement {
 }
 
+/*
+ * TermReference is a TerminologyMemberReference that represents a reference to a [=Term=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 abstract class TermReference extends TerminologyMemberReference {
+	/*
+	 * The set of specializations for the referenced term
+	 */
 	contains TermSpecializationAxiom[] specializations
 }
 
+/*
+ * EntityReference is a TermReference that represents a reference to a [=Entity=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 abstract class EntityReference extends TermReference {
+	/*
+	 * The set of restrictions for the referenced entity
+	 */
 	contains EntityRestrictionAxiom[] restrictions
 }
 
+/*
+ * AspectReference is a EntityReference that represents a reference to an [=Aspect=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class AspectReference extends EntityReference {
+	/*
+	 * The referenced aspect
+	 */
 	refers Aspect[1] aspect
 }
 
+/*
+ * ConceptReference is a EntityReference that represents a reference to a [=Concept=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class ConceptReference extends EntityReference {
+	/*
+	 * The referenced concept
+	 */
 	refers Concept[1] concept
 }
 
+/*
+ * ReifiedRelationshipReference is a EntityReference that represents a reference to a [=ReifiedRelationship=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class ReifiedRelationshipReference extends EntityReference {
+	/*
+	 * The referenced reified relationship
+	 */
 	refers ReifiedRelationship[1] relationship
 }
 
+/*
+ * UnreifiedRelationshipReference is a TermReference that represents a reference to a [=UnreifiedRelationship=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class UnreifiedRelationshipReference extends TermReference {
+	/*
+	 * The referenced unreified relationship
+	 */
 	refers UnreifiedRelationship[1] relationship
 }
 
+/*
+ * StructureReference is a TermReference that represents a reference to a [=Structure=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class StructureReference extends TermReference {
+	/*
+	 * The referenced structure
+	 */
 	refers Structure[1] structure
 }
 
+/*
+ * ScalarRangeReference is a TermReference that represents a reference to a [=ScalarRange=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class ScalarRangeReference extends TermReference {
+	/*
+	 * The referenced scalar
+	 */
 	refers ScalarRange[1] scalar
 }
 
+/*
+ * StructuredPropertyReference is a TermReference that represents a reference to a [=StructuredProperty=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class StructuredPropertyReference extends TermReference {
+	/*
+	 * The referenced structured property
+	 */
 	refers StructuredProperty[1] property
 }
 
+/*
+ * ScalarPropertyReference is a TermReference that represents a reference to a [=ScalarProperty=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class ScalarPropertyReference extends TermReference {
+	/*
+	 * The referenced scalar property
+	 */
 	refers ScalarProperty[1] property
 }
 
+/*
+ * RelationshipDirectionReference is a TerminologyMemberReference that represents a reference to a [=RelationshipDirection=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class RelationshipDirectionReference extends TerminologyMemberReference {
+	/*
+	 * The referenced relationship direction
+	 */
 	refers RelationshipDirection[1] direction
 }
 
+/*
+ * RuleReference is a TerminologyMemberReference that represents a reference to a [=Rule=].
+ */
 @Bikeshed(subsection="TerminologyReferences")
 class RuleReference extends TerminologyMemberReference {
+	/*
+	 * The referenced rule
+	 */
 	refers Rule[1] rule	
 }
 
+/*
+ * DescriptionMemberReference is a GraphMemberReference that represents a reference to a [=DescriptionMember=].
+ */
 @Bikeshed(subsection="DescriptionReferences")
 abstract class DescriptionMemberReference extends GraphMemberReference, DescriptionStatement {
 }
 
+/*
+ * NamedInstanceReference is a DescriptionMemberReference that represents a reference to a [=NamedInstance=].
+ */
 @Bikeshed(subsection="DescriptionReferences")
 abstract class NamedInstanceReference extends DescriptionMemberReference {
+	/*
+	 * The set of property value assertions for the referenced instance
+	 */
 	contains InstancePropertyValueAssertion[] propertyValues
 }
 
+/*
+ * ConceptInstanceReference is a NamedInstanceReference that represents a reference to a [=ConceptInstance=].
+ */
 @Bikeshed(subsection="DescriptionReferences")
 class ConceptInstanceReference extends NamedInstanceReference {
+	/*
+	 * The referenced concept instance
+	 */
 	refers ConceptInstance[1] instance
+	/*
+	 * The set of type assertions for the referenced concept instance
+	 */
 	contains ConceptInstanceTypeAssertion[] types
 }
 
+/*
+ * ReifiedRelationshipInstanceReference is a NamedInstanceReference that represents a reference to a [=ReifiedRelationshipInstance=].
+ */
 @Bikeshed(subsection="DescriptionReferences")
 class ReifiedRelationshipInstanceReference extends NamedInstanceReference {
+	/*
+	 * The referenced reified relationship instance
+	 */
 	refers ReifiedRelationshipInstance[1] instance
+	/*
+	 * The set of type assertions for the referenced reified relationship instance
+	 */
 	contains ReifiedRelationshipInstanceTypeAssertion[] types
 }
 
+/**
+ * GraphStatement is an AnnotatedElement that represents a statement owned by a [=Graph=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class GraphStatement extends AnnotatedElement {
 }
 
+/*
+ * TerminologyStatement is a GraphStatement that represents a statement owned by a [=Terminology=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class TerminologyStatement extends GraphStatement {
 }
 
+/*
+ * DescriptionStatement is a GraphStatement that represents a statement owned by a [=Description=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class DescriptionStatement extends GraphStatement {
 }
 
+/*
+ * Axiom is an AnnotatedElement that represents a statement owned by [=Term=].
+ */
 @Bikeshed(subsection="Axioms")
 abstract class Axiom extends AnnotatedElement {
 }
 
+/*
+ * TermSpecializationAxiom is an Axiom that represents a specialization by the owning [=Term=] of another [=Term=].
+ */
 @Bikeshed(subsection="Axioms")
 class TermSpecializationAxiom extends Axiom {
+	/*
+	 * The term that is specialized by the axiom's owning term
+	 */
 	refers Term[1] specializedTerm
 }
 
+/*
+ * EntityRestrictionAxiom is an Axiom owned by an [=Entity=] that restricts one of its properties or relationships
+ */
 @Bikeshed(subsection="Axioms")
 abstract class EntityRestrictionAxiom extends Axiom {
 }
 
+/*
+ * RelationshipRestrictionAxiom is an EntityRestrictionAxiom owned by an [=Entity=] that restricts one of its relationships.
+ */
 @Bikeshed(subsection="Axioms")
 abstract class RelationshipRestrictionAxiom extends EntityRestrictionAxiom {
+	/*
+	 * The restricted relationship direction
+	 */
 	refers RelationshipDirection[1] relationshipDirection
+	/*
+	 * The entity that the relationship is restricted to
+	 */
 	refers Entity[1] restrictedTo
 }
 
+/*
+ * ExistentialRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that there exists a relationship of the given kind from the owning [=Entity=] to the restricted [=Entity=].
+ */
 @Bikeshed(subsection="Axioms")
 class ExistentialRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
 
+/*
+ * UniversalRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that all relationships of the given kind from the owning [=Entity=] must be to the restricted [=Entity=]. 
+ */
 @Bikeshed(subsection="Axioms")
 class UniversalRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
