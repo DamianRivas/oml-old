@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/opencaesar/oml.svg?branch=master)](https://travis-ci.org/opencaesar/oml)
 [ ![Download](https://api.bintray.com/packages/opencaesar/oml/io.opencaesar.oml/images/download.svg) ](https://bintray.com/opencaesar/oml/io.opencaesar.oml/_latestVersion)
 
-A language server for the Ontology Modeling Language (OML)
+The implementation of the Ontology Modeling Language: abstract syntax, concrete syntax, API, and language server.
 
 ## Clone
 ```

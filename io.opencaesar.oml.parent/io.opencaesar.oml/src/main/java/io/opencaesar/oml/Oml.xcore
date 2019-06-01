@@ -765,7 +765,7 @@ class ReifiedRelationshipInstanceReference extends NamedInstanceReference {
 	contains ReifiedRelationshipInstanceTypeAssertion[] types
 }
 
-/**
+/*
  * GraphStatement is an AnnotatedElement that represents a statement owned by a [=Graph=].
  */
 @Bikeshed(subsection="Graphs")
@@ -787,7 +787,7 @@ abstract class DescriptionStatement extends GraphStatement {
 }
 
 /*
- * Axiom is an AnnotatedElement that represents a statement owned by [=Term=].
+ * Axiom is an AnnotatedElement that represents a statement about its owning [=Term=].
  */
 @Bikeshed(subsection="Axioms")
 abstract class Axiom extends AnnotatedElement {
@@ -827,200 +827,408 @@ abstract class RelationshipRestrictionAxiom extends EntityRestrictionAxiom {
 }
 
 /*
- * ExistentialRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that there exists a relationship of the given kind from the owning [=Entity=] to the restricted [=Entity=].
+ * ExistentialRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that there exists at least one relationship of the given kind from the domain [=Entity=] to the restricted range [=Entity=].
  */
 @Bikeshed(subsection="Axioms")
 class ExistentialRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
 
 /*
- * UniversalRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that all relationships of the given kind from the owning [=Entity=] must be to the restricted [=Entity=]. 
+ * UniversalRelationshipRestrictionAxiom is an RelationshipRestrictionAxiom that specifies that all relationships of the given kind from the domain [=Entity=] must only be to the restricted range [=Entity=]. 
  */
 @Bikeshed(subsection="Axioms")
 class UniversalRelationshipRestrictionAxiom extends RelationshipRestrictionAxiom {
 }
 
+/*
+ * ScalarPropertyRestrictionAxiom is an EntityRestrictionAxiom owned by an [=Entity=] that restricts one of its scalar properties.
+ */
 @Bikeshed(subsection="Axioms")
 abstract class ScalarPropertyRestrictionAxiom extends EntityRestrictionAxiom {
 	refers ScalarProperty[1] property
 }
 
+/*
+ * TypedScalarPropertyRestrictionAxion is an ScalarPropertyRestrictionAxiom owned by an [=Entity=] that restricts one of its scalar properties to have values of given ScalarRange.
+ */
 @Bikeshed(subsection="Axioms")
 abstract class TypedScalarPropertyRestrictionAxion extends ScalarPropertyRestrictionAxiom {
 	refers ScalarRange[1] restrictedTo
 }
 
+/*
+ * ExistentialScalarPropertyRestrictionAxiom is an TypedScalarPropertyRestrictionAxion that specifies that there exists at least one literal of the given ScalarRange as a value of the restricted [=ScalarProperty=] on the domain [=Entity=].
+ */
 @Bikeshed(subsection="Axioms")
 class ExistentialScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
 }
 
+/*
+ * ExistentialScalarPropertyRestrictionAxiom is an TypedScalarPropertyRestrictionAxion that specifies that all values of the restricted [=ScalarProperty=] on the domain [=Entity=] are literals of the given [=ScalarRange=].
+ */
 @Bikeshed(subsection="Axioms")
 class UniversalScalarPropertyRestrictionAxiom extends TypedScalarPropertyRestrictionAxion {
 }
 
+/*
+ * ParticularScalarPropertyRestrictionAxiom is an ScalarPropertyRestrictionAxiom that specifies that the value of the restricted [=ScalarProperty=] on the domain [=Entity=] is the given LiteralValue.
+ */
 @Bikeshed(subsection="Axioms")
 class ParticularScalarPropertyRestrictionAxiom extends ScalarPropertyRestrictionAxiom {
 	contains LiteralValue[1] value
 }
 
+/*
+ * StructuredPropertyRestrictionAxiom is an EntityRestrictionAxiom that specifies that the value of the restricted [=StructuredProperty=] on the domain [=Entity=] is the given StructureInstance.
+ */
 @Bikeshed(subsection="Axioms")
 class StructuredPropertyRestrictionAxiom extends EntityRestrictionAxiom {
+	/*
+	 * The restricted structured property
+	 */
 	refers StructuredProperty[1] property
+	/*
+	 * The structure instsance value that the structured property is restricted to
+	 */
 	contains StructureInstance[1] value
 }
 
+/*
+ * Assertion is an AnnotatedElement that represents a statement about its owning [=Instance=].
+ */
 @Bikeshed(subsection="Assertions")
 abstract class Assertion extends AnnotatedElement {
 }
 
+/*
+ * ConceptInstanceTypeAssertion is an Assertion that the owning [=ConceptInstance=] is typed by the given Concept.
+ */
 @Bikeshed(subsection="Assertions")
 class ConceptInstanceTypeAssertion extends Assertion {
+	/*
+	 * The concpet that is a type for this concept instance
+	 */
 	refers Concept[1] concept	
 }
 
+/*
+ * ReifiedRelationshipInstanceTypeAssertion is an Assertion that the owning [=ReifiedRelationshipInstance=] is typed by the given ReifiedRelationship.
+ */
 @Bikeshed(subsection="Assertions")
 class ReifiedRelationshipInstanceTypeAssertion extends Assertion {
+	/*
+	 * The reified relationship that is a type for this reified relationship instance
+	 */
 	refers ReifiedRelationship[1] relationship	
 }
 
+/*
+ * InstancePropertyValueAssertion is an Assertion that the owning [=Instance=] has a given value for a given property. 
+ */
 @Bikeshed(subsection="Assertions")
 abstract class InstancePropertyValueAssertion extends Assertion {
 }
 
+/*
+ * ScalarPropertyValueAssertion is an InstancePropertyValueAssertion that the owning [=Instance=] has the given LiteralValue for the given ScalarProperty. 
+ */
 @Bikeshed(subsection="Assertions")
 class ScalarPropertyValueAssertion extends InstancePropertyValueAssertion {
+	/*
+	 * The scalar property that has the value
+	 */
 	refers ScalarProperty[1] property
+	/*
+	 * The literal value of the scalar property
+	 */
 	contains LiteralValue[1] value
 }
 
+/*
+ * StructuredPropertyValueAssertion is an InstancePropertyValueAssertion that the owning [=Instance=] has the given StructureInstance for the given StructuredProperty. 
+ */
 @Bikeshed(subsection="Assertions")
 class StructuredPropertyValueAssertion extends InstancePropertyValueAssertion {
+	/*
+	 * The structured property that has the value
+	 */
 	refers StructuredProperty[1] property
+	/*
+	 * The structure instance value of the structured property
+	 */
 	contains StructureInstance[1] value
 }
 
+/*
+ * GraphImport is an Element that identifies the URI of [=Graph] that is imported by the owning [=Graph=]. It may also specify an abbreviated namespace for the imported [=Graph=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class GraphImport extends Element {
+	/*
+	 * The URI of the imported graph
+	 */
 	String[1] importURI
+	/*
+	 * The abbreviated namespace of the imported graph 
+	 */
 	String importedNamespace
 }
 
+/*
+ * TerminologyImport is a GraphImport that specifies an imported [=Terminology=] by the owning [=Terminology=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class TerminologyImport extends GraphImport {
 }
 
+/*
+ * TerminologyExtension is a TerminologyImport that specifies that the importing [=Terminology=] extends (includes and augments the statements of) the imported [=Terminology=].
+ */
 @Bikeshed(subsection="Graphs")
 class TerminologyExtension extends TerminologyImport {
 }
 
+/*
+ * DescriptionImport is a GraphImport that specifies an imported [=Description=] by the owning [=Description=].
+ */
 @Bikeshed(subsection="Graphs")
 abstract class DescriptionImport extends GraphImport {
 }
 
+/*
+ * DescriptionUsage is a DescriptionImport that specifies that the importing [=Description=] uses (terms from) the imported [=Terminology=].
+ */
 @Bikeshed(subsection="Graphs")
 class DescriptionUsage extends DescriptionImport {
 }
 
+/*
+ * DescriptionRefinement is a DescriptionImport that specifies that the importing [=Description=] refines (includes and augments the statements of) the imported [=Description=].
+ */
 @Bikeshed(subsection="Graphs")
 class DescriptionRefinement extends DescriptionImport {
 }
 
+/*
+ * Instance is an Element that represents a object that is typed by some type defined in a [=Terminology=].
+ */
 @Bikeshed(subsection="Instances")
 abstract class Instance extends Element {
 	contains InstancePropertyValueAssertion[] propertyValues
 }
 
+/*
+ * StructureInstance is an Instance that is typed by a Structure=.
+ */
 @Bikeshed(subsection="Instances")
 class StructureInstance extends Instance {
+	/*
+	 * The structure that is the type of the instance
+	 */
 	refers Structure[1] structure
 }
 
+/*
+ * LiteralValue is an Element that represent a class of literals.
+ */
 @Bikeshed(subsection="Literals")
 abstract class LiteralValue extends Element {
+	/*
+	 * The ScalarRange that is the type of the literal value
+	 */
 	refers ScalarRange valueType
 }
 
+/*
+ * LiteralBoolean is an LiteralValue that represent boolean literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralBoolean extends LiteralValue {
+	/*
+	 * The boolean value
+	 */
 	boolean value
 }
 
+/*
+ * LiteralDateTime is an LiteralValue that represent datetime literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralDateTime extends LiteralValue {
+	/*
+	 * the datetime value
+	 */
 	String[1] value
 }
 
+/*
+ * LiteralString is an LiteralValue that represent string literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralString extends LiteralValue {
+	/*
+	 * The string value
+	 */
 	String[1] value
 }
 
+/*
+ * LiteralUUID is an LiteralValue that represent UUID literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralUUID extends LiteralValue {
+	/*
+	 * the UUID value
+	 */
 	String[1] value
 }
 
+/*
+ * LiteralURI is an LiteralValue that represent URI literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralURI extends LiteralValue {
+	/*
+	 * The URI value
+	 */
 	String[1] value
 }
 
+/*
+ * LiteralNumber is an LiteralValue that represent numeric literals.
+ */
 @Bikeshed(subsection="Literals")
 abstract class LiteralNumber extends LiteralValue {
 }
 
+/*
+ * LiteralReal is an LiteralNumber that represent real literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralReal extends LiteralNumber {
+	/*
+	 * The real value
+	 */
 	Double[1] value
 }
 
+/*
+ * LiteralRational is an LiteralNumber that represent rational literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralRational extends LiteralNumber {
+	/*
+	 * The rational value
+	 */
 	Double[1] value
 }
 
+/*
+ * LiteralFloat is an LiteralNumber that represent float literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralFloat extends LiteralNumber {
+	/*
+	 * The float value
+	 */
 	Float[1] value
 }
 
+/*
+ * LiteralDecimal is an LiteralNumber that represent decimal literals.
+ */
 @Bikeshed(subsection="Literals")
 class LiteralDecimal extends LiteralNumber {
+	/*
+	 * The decimal value
+	 */
 	BigDecimal[1] value
 }
 
+/*
+ * Predicate is an Element that asserts the satisfaction of some condition.
+ */
 @Bikeshed(subsection="Rules")
 abstract class Predicate extends Element {
 }
 
+/*
+ * EntityPredicate is a Predicate that asserts the existence of a given Entity and assigns it to the given variable. 
+ */
 @Bikeshed(subsection="Rules")
 class EntityPredicate extends Predicate {
+	/*
+	 * The entity that is asserted to exist
+	 */
 	refers Entity[1] entity
+	/*
+	 * The variable (e.g., x1) that the entity is assigned to
+	 */
 	String[1] variable
 }
 
+/*
+ * RelationshipPredicate is a Predicate that asserts that some relationship exists and assigns its source [=Entity=] and target [=Entity=] to the variable1 and variable2, respectively. 
+ */
 @Bikeshed(subsection="Rules")
 abstract class RelationshipPredicate extends Predicate {
+	/*
+	 * The variable (e.g., x1) that the source entity of the relationship is assigned to
+	 */
 	String[1] variable1
+	/*
+	 * The variable (e.g., x2) that the target entity of the relationship is assigned to
+	 */
 	String[1] variable2
 }
 
+/*
+ * DirectionalRelationshipPredicate is a RelationshipPredicate that asserts that a given RelationshipDirection exists from a source [=Entity=] to a target [=Entity=] and assigns them to variable1 and variable2, respectively.
+ */
 @Bikeshed(subsection="Rules")
 class DirectionalRelationshipPredicate extends RelationshipPredicate {
+	/*
+	 * The relationship direction that exists between the two entities
+	 */
 	refers RelationshipDirection[1] relationshipDirection
 }
 
+/*
+ * ReifiedRelationshipPredicate is a RelationshipPredicate that asserts that an instance of a given [=ReifiedRelationship=] exists and, based on the kind of the predicate, assigns the relationship instance
+ * and either its source [=Entity=] or target [=Entity] to variable1 and variable2.
+ */
 @Bikeshed(subsection="Rules")
 class ReifiedRelationshipPredicate extends RelationshipPredicate {
+	/*
+	 * The reified relationship that exists
+	 */
 	refers ReifiedRelationship[1] relationship
+	/*
+	 * The kind of the predicate
+	 */
 	ReifiedRelationshipPredicateKind kind
 }
 
+/*
+ * ReifiedRelationshipPredicateKind is an enumeration of the ways variable1 and variable2 get assigned in a [=ReifiedRelationshipPredicate=]
+ */
 @Bikeshed(subsection="Rules")
 enum ReifiedRelationshipPredicateKind {
+	/*
+	 * variable1 = the reified relationship, variable2 = the source Entity
+	 */
 	Source as "source"
+	/*
+	 * variable1 = the source entity, variable2 = the reified relationship
+	 */
 	InverseSource as "inverseSource" = 1
+	/*
+	 * variable1 = the reified relationship, variable2 = the target Entity
+	 */
 	Target as "target" = 2
+	/*
+	 * variable1 = the target entity, variable2 = the reified relationship
+	 */
 	InverseTarget as "inverseTarget" = 3
 }
 
