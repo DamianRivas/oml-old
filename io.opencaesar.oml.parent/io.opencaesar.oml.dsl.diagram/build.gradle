@@ -1,8 +1,6 @@
-plugins {
-	id 'com.github.johnrengelman.shadow' version '2.0.0'
-}
+plugins {id 'com.github.johnrengelman.shadow' version '2.0.0'}
 
-ext.title = 'Oml Diagram Generator'
+ext.title = 'Oml Diagram'
 description = 'Overview diagram generator for Oml based on sprotty'
 
 dependencies {
@@ -18,8 +16,9 @@ dependencies {
 }
 
 apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
 mainClassName = "io.opencaesar.oml.dsl.diagram.OmlServerLauncher"
+
+apply plugin: 'com.github.johnrengelman.shadow'
 
 shadowJar {
 	from(project.convention.getPlugin(JavaPluginConvention).sourceSets.main.output)

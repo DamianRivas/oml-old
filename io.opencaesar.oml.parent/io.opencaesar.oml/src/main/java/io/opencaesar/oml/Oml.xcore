@@ -521,17 +521,17 @@ class InverseDirection extends RelationshipDirection {
 }
 
 /*
- * DescriptionMember is a GraphMember that is specified as a DescriptionStatement.  
+ * DescriptionMember is a GraphMember that is a member of a [=Description=].
  */
 @Bikeshed(subsection="Graphs")
-abstract class DescriptionMember extends GraphMember, DescriptionStatement {
+abstract class DescriptionMember extends GraphMember {
 }
 
 /*
  * NamedInstance is a DescriptionMember that represents an Instance (of some [=Entity=]) with a name.
  */
 @Bikeshed(subsection="Instances")
-abstract class NamedInstance extends DescriptionMember , Instance {
+abstract class NamedInstance extends DescriptionMember , DescriptionStatement, Instance {
 }
 
 /*

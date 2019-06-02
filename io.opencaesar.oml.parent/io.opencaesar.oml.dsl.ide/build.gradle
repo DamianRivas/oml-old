@@ -5,5 +5,5 @@ dependencies {
 	compile project(':io.opencaesar.oml.dsl')
 	compile "org.eclipse.xtext:org.eclipse.xtext.ide:${versions.xtext}"
 	compile "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${versions.xtext}"
-	compile 'com.google.guava:guava:21.0'
+	compile 'com.google.guava:guava:${versions.guava}'
 }

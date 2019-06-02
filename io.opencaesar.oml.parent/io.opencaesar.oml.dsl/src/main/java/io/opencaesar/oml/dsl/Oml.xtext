@@ -384,7 +384,7 @@ TerminologyStatement:
 	TerminologyMemberReference;
 
 DescriptionStatement:
-	DescriptionMember |
+	NamedInstance |
 	DescriptionMemberReference;
 
 Axiom:

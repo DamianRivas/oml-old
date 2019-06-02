@@ -11,8 +11,8 @@ sourceSets {
 }
 
 dependencies {
-	testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine:5.1.0"
+	testCompile "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}"
 	testCompile "org.eclipse.xtext:org.eclipse.xtext.testing:${versions.xtext}"
 	testCompile "org.eclipse.xtext:org.eclipse.xtext.xbase.testing:${versions.xtext}"
 	compile project(':io.opencaesar.oml')
@@ -31,9 +31,9 @@ dependencies {
 	mwe2 "org.eclipse.emf:org.eclipse.emf.mwe2.launch:${versions.mwe2}"
 	mwe2 "org.eclipse.xtext:org.eclipse.xtext.xtext.generator:${versions.xtext}"
 	mwe2 "org.eclipse.xtext:org.eclipse.xtext.ecore:${versions.xtext}"
-	mwe2 'org.eclipse.emf:org.eclipse.emf.ecore.xcore:1.3.+'
-	mwe2 'org.eclipse.emf:org.eclipse.emf.ecore.xcore.lib:1.1.+'
-	mwe2 'org.eclipse.emf:org.eclipse.emf.codegen.ecore.xtext:1.2.+'
+	mwe2 "org.eclipse.emf:org.eclipse.emf.ecore.xcore:${versions.xcore}"
+	mwe2 "org.eclipse.emf:org.eclipse.emf.ecore.xcore.lib:${versions.xcoreLib}"
+	mwe2 "org.eclipse.emf:org.eclipse.emf.codegen.ecore.xtext:${versions.ecoreXtext}"
 }
 
 task generateXtextLanguage(type: JavaExec) {
