@@ -256,6 +256,11 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				children += newSElement(SLabel, id + '-label', 'text') => [
 					text = id
 				]
+				if (relationship.inverseFunctional) {
+					children += newSElement(SLabel, 'oml-invFunc', 'subtext') => [
+						text = "[0,1]"
+					]
+				}
 			]
 			semantic2diagram.get(resource.contents.head).children += edge
 			trace(edge, relationship)
