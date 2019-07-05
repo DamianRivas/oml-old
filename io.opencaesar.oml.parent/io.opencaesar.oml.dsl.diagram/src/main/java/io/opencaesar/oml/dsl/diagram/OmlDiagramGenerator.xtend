@@ -257,7 +257,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 					text = id
 				]
 				if (relationship.inverseFunctional) {
-					children += newSElement(SLabel, 'oml-invFunc', 'subtext') => [
+					children += newSElement(SLabel, id + 'oml-invFunc', 'subtext') => [
 						text = "[0,1]"
 					]
 				}
