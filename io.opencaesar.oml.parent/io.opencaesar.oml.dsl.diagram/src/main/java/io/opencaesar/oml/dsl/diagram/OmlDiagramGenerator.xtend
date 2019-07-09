@@ -1,10 +1,12 @@
 package io.opencaesar.oml.dsl.diagram
 
 import com.google.inject.Inject
+import io.opencaesar.oml.Graph
 import io.opencaesar.oml.Aspect
 import io.opencaesar.oml.AspectReference
 import io.opencaesar.oml.Concept
 import io.opencaesar.oml.ConceptReference
+import io.opencaesar.oml.Description
 import io.opencaesar.oml.ReifiedRelationship
 import io.opencaesar.oml.Scalar
 import io.opencaesar.oml.ScalarRangeReference
@@ -14,18 +16,18 @@ import io.opencaesar.oml.TermSpecializationAxiom
 import io.opencaesar.oml.Terminology
 import io.opencaesar.oml.TerminologyExtension
 import io.opencaesar.oml.UnreifiedRelationship
-import io.typefox.sprotty.api.IDiagramState
-import io.typefox.sprotty.api.LayoutOptions
-import io.typefox.sprotty.api.SButton
-import io.typefox.sprotty.api.SCompartment
-import io.typefox.sprotty.api.SEdge
-import io.typefox.sprotty.api.SGraph
-import io.typefox.sprotty.api.SLabel
-import io.typefox.sprotty.api.SModelElement
-import io.typefox.sprotty.api.SModelRoot
-import io.typefox.sprotty.server.xtext.IDiagramGenerator
-import io.typefox.sprotty.server.xtext.tracing.ITraceProvider
-import io.typefox.sprotty.server.xtext.tracing.Traceable
+import org.eclipse.sprotty.IDiagramState
+import org.eclipse.sprotty.LayoutOptions
+import org.eclipse.sprotty.SButton
+import org.eclipse.sprotty.SCompartment
+import org.eclipse.sprotty.SEdge
+import org.eclipse.sprotty.SGraph
+import org.eclipse.sprotty.SLabel
+import org.eclipse.sprotty.SModelElement
+import org.eclipse.sprotty.SModelRoot
+import org.eclipse.sprotty.xtext.IDiagramGenerator
+import org.eclipse.sprotty.xtext.tracing.ITraceProvider
+//import io.typefox.sprotty.server.xtext.tracing.Traceable
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -49,6 +51,21 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	var Map<EObject, SModelElement> semantic2diagram
 	var List<()=>void> postProcesses
 	
+	override generate(Context context) {
+		LOG.info("Generating diagram for input: '" + resource.URI.lastSegment + "'")
+		val graph = context.resource.contents.head
+		switch (graph) {
+			Terminology: {
+				(context.resource.contents.head as Terminology).toSGraph(context)
+			}
+			Description: {
+				(context.resource.contents.head as Description).toSGraph(context)
+			}
+			default: {
+				throw new IllegalStateException("Unknown graph type")
+			}
+		}
+	}
 	
 	override SModelRoot generate(Resource resource, IDiagramState state, CancelIndicator cancelIndicator) {
 		LOG.info("Generating diagram for input: '" + resource.URI.lastSegment + "'")
@@ -74,6 +91,57 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 
 		return diagram
 	}
+
+	def dispatch toSGraph(Terminology terminology, extension Context context) {
+		(new SGraph[
+			id = idCache.uniqueId(terminology, terminology.name)
+			
+			// PAUL'S EXAMPLE
+//			resource.allContents.forEach[object|
+//				object.addToDiagram(it)
+//			]
+//			
+			children = (terminology.members.map[toSNode(context)])
+			
+			children = (terminology.states.map[toSNode(context)] 
+					  + terminology.states.map[transitions].flatten.map[toSEdge(context)]
+			).toList
+		]).traceAndMark(terminology, context)
+	}
+	
+	def dispatch toSGraph(Description description, extension Context context) {
+		(new SGraph[
+			id = idCache.uniqueId(description, description.name)
+			
+			// PAUL'S EXAMPLE
+//			resource.allContents.forEach[object|
+//				object.addToDiagram(it)
+//			]
+//			
+//			children = (graph.statements.map[toSNode(context)]).toList
+			
+			children = (description.states.map[toSNode(context)] 
+					  + description.states.map[transitions].flatten.map[toSEdge(context)]
+			).toList
+		]).traceAndMark(description, context)
+	}
+
+//	def toSGraph(Graph graph, extension Context context) {
+//		(new SGraph [
+//			id = idCache.uniqueId(graph, graph.name)
+//			
+//			// PAUL'S EXAMPLE
+//			resource.allContents.forEach[object|
+//				object.addToDiagram(it)
+//			]
+//			
+//			children = (graph.statements.map[toSNode(context)]).toList
+//			
+//			children = (graph.states.map[toSNode(context)] 
+//					  + graph.states.map[transitions].flatten.map[toSEdge(context)]
+//			).toList
+//		]).traceAndMark(graph, context)
+//	}
 
 	protected dispatch def void addToDiagram(EObject eObject, SGraph diagram) {
 	}
@@ -252,12 +320,12 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			}
 
 			val id = relationship.getLocalName(resource)
-			val edge = newEdge(source, target, id, "augments") => [
-				children += newSElement(SLabel, id + '-label', 'text') => [
+			val edge = newEdge(source, target, id, "augments") => [e|
+				e.children += newSElement(SLabel, id + '-label', 'text') => [
 					text = id
 				]
 				if (relationship.inverseFunctional) {
-					children += newSElement(SLabel, 'oml-invFunc', 'subtext') => [
+					e.children += newSElement(SLabel, id + '-invFunc', 'subtext') => [
 						text = "[0,1]"
 					]
 				}
@@ -290,6 +358,11 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				children += newSElement(SLabel, id + '-label', 'text') => [
 					text = id
 				]
+				if (relationship.inverseFunctional) {
+					children += newSElement(SLabel, id + '-invFunc', 'subtext') => [
+						text = "[0,1]"
+					]
+				}
 			]
 			semantic2diagram.get(resource.contents.head).children += edge
 			trace(edge, relationship)
@@ -407,11 +480,14 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		}
 	}
 
-	protected def void trace(SModelElement element, EObject object) {
-		if (element instanceof Traceable) {
-			traceProvider.trace(element, object)
-		}
-		semantic2diagram.put(object, element)
+//	protected def void trace(SModelElement element, EObject object) {
+//		if (element instanceof Traceable) {
+//			traceProvider.trace(element, object)
+//		}
+//		semantic2diagram.put(object, element)
+//	}
+	
+	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
+		sElement.trace(element).addIssueMarkers(element, context) 
 	}
-
 }

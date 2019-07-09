@@ -1,9 +1,9 @@
 package io.opencaesar.oml.dsl.diagram
 
-import io.typefox.sprotty.api.SGraph
-import io.typefox.sprotty.api.SModelRoot
-import io.typefox.sprotty.layout.ElkLayoutEngine
-import io.typefox.sprotty.layout.SprottyLayoutConfigurator
+import org.eclipse.sprotty.SGraph
+import org.eclipse.sprotty.SModelRoot
+import org.eclipse.sprotty.layout.ElkLayoutEngine
+import org.eclipse.sprotty.layout.SprottyLayoutConfigurator
 import java.io.ByteArrayOutputStream
 import org.apache.log4j.Logger
 import org.eclipse.elk.alg.layered.options.LayeredOptions
@@ -13,6 +13,7 @@ import org.eclipse.elk.core.options.Direction
 import org.eclipse.elk.graph.ElkNode
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+//import org.eclipse.elk.core.options.HierarchyHandling
 
 class OmlLayoutEngine extends ElkLayoutEngine {
 	

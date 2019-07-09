@@ -8,8 +8,8 @@ package io.opencaesar.oml.dsl.diagram
 
 import com.google.gson.GsonBuilder
 import com.google.inject.Guice
-import io.typefox.sprotty.layout.ElkLayoutEngine
-import io.typefox.sprotty.server.json.ActionTypeAdapter
+import org.eclipse.sprotty.layout.ElkLayoutEngine
+import org.eclipse.sprotty.server.json.ActionTypeAdapter
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
 import java.nio.channels.Channels

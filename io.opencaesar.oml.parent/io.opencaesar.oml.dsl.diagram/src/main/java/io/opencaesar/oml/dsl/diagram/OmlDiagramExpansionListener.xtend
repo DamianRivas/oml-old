@@ -1,9 +1,9 @@
 package io.opencaesar.oml.dsl.diagram
 
-import io.typefox.sprotty.api.Action
-import io.typefox.sprotty.api.IDiagramExpansionListener
-import io.typefox.sprotty.api.IDiagramServer
-import io.typefox.sprotty.server.xtext.LanguageAwareDiagramServer
+import org.eclipse.sprotty.Action
+import org.eclipse.sprotty.IDiagramExpansionListener
+import org.eclipse.sprotty.IDiagramServer
+import org.eclipse.sprotty.xtext.LanguageAwareDiagramServer
 
 class OmlDiagramExpansionListener implements IDiagramExpansionListener {
 	

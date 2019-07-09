@@ -1,0 +1,18 @@
+#Mon Jul 08 09:48:19 PDT 2019
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/resources.directory=build/xcore/test
+generateSuppressWarnings=true
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/java.directory=build/xcore/test
+BuilderConfiguration.is_project_specific=true
+targetJavaVersion=Java8
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/resources.directory=build/xcore/main
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/xtext-gen.directory=build/xcore/test
+useJavaCompilerCompliance=false
+outlet.DEFAULT_OUTPUT.installDslAsPrimarySource=false
+outlet.DEFAULT_OUTPUT.userOutputPerSourceFolder=true
+outlet.DEFAULT_OUTPUT.hideLocalSyntheticVariables=true
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/xtext-gen.directory=build/xcore/main
+eclipse.preferences.version=1
+generateGeneratedAnnotation=false
+includeDateInGenerated=false
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/java.directory=build/xcore/main
+ValidatorConfiguration.is_project_specific=true

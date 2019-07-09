@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>io.opencaesar.oml.dsl.ide</name>
-	<comment></comment>
+	<comment>Generic IDE services for Oml offered via the Language Server Protocol</comment>
 	<projects>
 	</projects>
 	<buildSpec>

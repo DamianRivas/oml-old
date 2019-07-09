@@ -3,8 +3,8 @@ package io.opencaesar.oml.dsl.diagram
 import com.google.gson.GsonBuilder
 import com.google.inject.Guice
 import com.google.inject.Inject
-import io.typefox.sprotty.layout.ElkLayoutEngine
-import io.typefox.sprotty.server.json.ActionTypeAdapter
+import org.eclipse.sprotty.layout.ElkLayoutEngine
+import org.eclipse.sprotty.server.json.ActionTypeAdapter
 import java.util.concurrent.Executors
 import java.util.function.Consumer
 import java.util.function.Function

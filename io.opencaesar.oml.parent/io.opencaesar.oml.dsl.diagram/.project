@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>io.opencaesar.oml.dsl.diagram</name>
-	<comment>Project io.opencaesar.oml.dsl.diagram created by Buildship.</comment>
+	<comment>Overview diagram generator for Oml based on sprotty</comment>
 	<projects>
 	</projects>
 	<buildSpec>

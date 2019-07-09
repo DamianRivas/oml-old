@@ -7,9 +7,9 @@ dependencies {
 	compile project(':io.opencaesar.oml.dsl.ide')
 	compile "org.eclipse.lsp4j:org.eclipse.lsp4j:${versions.lsp4j}"
 	compile "org.eclipse.elk:org.eclipse.elk.alg.layered:${versions.elk}"
-	compile "io.typefox.sprotty:diagram-server:${versions.sprotty}"
-	compile "io.typefox.sprotty:diagram-layout-engine:${versions.sprotty}"
-	compile "io.typefox.sprotty:xtext-diagram:${versions.sprotty}"
+	compile "org.eclipse.sprotty:org.eclipse.sprotty.server:${versions.sprotty}"
+	compile "org.eclipse.sprotty:org.eclipse.sprotty.layout:${versions.sprotty}"
+	compile "org.eclipse.sprotty:org.eclipse.sprotty.xtext:${versions.sprotty}"
 	compile "org.eclipse.xtext:org.eclipse.xtext:${versions.xtext}"
 	compile "org.eclipse.xtext:org.eclipse.xtext.xbase:${versions.xtext}"
 	
