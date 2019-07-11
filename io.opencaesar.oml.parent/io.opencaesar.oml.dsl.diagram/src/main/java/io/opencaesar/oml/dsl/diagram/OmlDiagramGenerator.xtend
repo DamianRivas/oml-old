@@ -5,6 +5,7 @@ import io.opencaesar.oml.Aspect
 import io.opencaesar.oml.AspectReference
 import io.opencaesar.oml.Concept
 import io.opencaesar.oml.ConceptReference
+import io.opencaesar.oml.Graph
 import io.opencaesar.oml.ReifiedRelationship
 import io.opencaesar.oml.Scalar
 import io.opencaesar.oml.ScalarRangeReference
@@ -46,6 +47,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	var IDiagramState diagramState
 	var Resource resource
 	
+	Graph diagramElement
+	
 	var Map<EObject, SModelElement> semantic2diagram
 	var List<()=>void> postProcesses
 	
@@ -65,6 +68,13 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				HGap = 10.0
 			]
 		]
+		
+		// Store the root Graph node for reference
+//		diagramElement = resource.allContents.head as Graph
+		diagramElement = resource.graph
+		
+		LOG.info("Resource: " + resource)
+		LOG.info("Diagram element: " + diagramElement)
 		
 		resource.allContents.forEach[object|
 			object.addToDiagram(diagram)
@@ -257,7 +267,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 					text = id
 				]
 				if (relationship.inverseFunctional) {
-					children += newSElement(SLabel, 'oml-invFunc', 'subtext') => [
+					children += newSElement(SLabel, id + 'oml-invFunc', 'subtext') => [
 						text = "[0,1]"
 					]
 				}
