@@ -7,7 +7,9 @@ import io.opencaesar.oml.Concept
 import io.opencaesar.oml.ConceptReference
 import io.opencaesar.oml.Graph
 import io.opencaesar.oml.ReifiedRelationship
+import io.opencaesar.oml.Relationship
 import io.opencaesar.oml.Scalar
+import io.opencaesar.oml.ScalarProperty
 import io.opencaesar.oml.ScalarRangeReference
 import io.opencaesar.oml.Structure
 import io.opencaesar.oml.StructureReference
@@ -123,7 +125,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		
 		val id = importedTerminology.getLocalName(resource)
 		val node = newSElement(OmlNode, id, 'module') => [
-			layout = 'vbox'
+			layout = 'hbox'
 			layoutOptions = new LayoutOptions [
 				paddingTop = 5.0
 				paddingBottom = 5.0
@@ -243,66 +245,100 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		}
 	}
 
-	protected dispatch def void addToDiagram(ReifiedRelationship relationship, SGraph diagram) {
+	protected dispatch def void addToDiagram(Relationship relationship, SGraph diagram) {
 		if (relationship.source === null || relationship.target === null) {
 			return
 		}
+		val id = relationship.getLocalName(resource)
+		val node = newSElement(OmlRelationshipNode, id, 'relationship') => [
+			cssClass = 'moduleNode'
+			layout = 'vbox'
+			layoutOptions = new LayoutOptions [
+				paddingLeft = 0.0
+				paddingRight = 0.0
+				paddingTop = 0.0
+				paddingBottom = 0.0
+			]
+			children += newTaglessHeading(id, relationship)
+		]
+		
+		var compartment = newSCompartment(id + '-compartment', 'comp:comp')
+		if (relationship.inverseFunctional) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-inverseFunctional-label'
+				text = 'inverseFunctional'
+			])
+		}
+		if (relationship.functional) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-functional-label'
+				text = 'functional'
+			])
+		}
+		if (relationship.symmetric) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-symmetric-label'
+				text = 'symmetric'
+			])
+		}
+		if (relationship.asymmetric) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-asymmetric-label'
+				text = 'asymmetric'
+			])
+		}
+		if (relationship.reflexive) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-reflexive-label'
+				text = 'reflexive'
+			])
+		}
+		if (relationship.irreflexive) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-irreflexive-label'
+				text = 'irreflexive'
+			])
+		}
+		if (relationship.transitive) {
+			compartment.children += new SLabel([
+				type = 'label:text'
+				it.id = relationship.name + '-transitive-label'
+				text = 'transitive'
+			])
+		}
+		
+		node.children += compartment
+		
+		semantic2diagram.get(resource.contents.head).children += node
+		trace(node, relationship)
 		
 		postProcesses.add([
 			var source = semantic2diagram.get(relationship.source)
 			if (source === null) {
-				relationship.source.addToDiagram(diagram)
+				addToDiagram(relationship.source, diagram)
 				source = semantic2diagram.get(relationship.source)
 			}
 			
 			var target = semantic2diagram.get(relationship.target)
 			if (target === null) {
-				relationship.target.addToDiagram(diagram)
+				addToDiagram(relationship.target, diagram)
 				target = semantic2diagram.get(relationship.target)
-			}
-
-			val id = relationship.getLocalName(resource)
-			val edge = newEdge(source, target, id, "augments") => [
-				children += newSElement(SLabel, id + '-label', 'text') => [
-					text = id
-				]
-				if (relationship.inverseFunctional) {
-					children += newSElement(SLabel, id + 'oml-invFunc', 'subtext') => [
-						text = "[0,1]"
-					]
-				}
-			]
-			semantic2diagram.get(resource.contents.head).children += edge
-			trace(edge, relationship)
-		])
-	}
-
-	protected dispatch def void addToDiagram(UnreifiedRelationship relationship, SGraph diagram) {
-		if (relationship.source === null || relationship.target === null) {
-			return
-		}
-		
-		postProcesses.add([
-			var source = semantic2diagram.get(relationship.source)
-			if (source === null) {
-				relationship.source.addToDiagram(diagram)
-				source = semantic2diagram.get(relationship.source)
 			}
 			
-			var target = semantic2diagram.get(relationship.target)
-			if (target === null) {
-				relationship.target.addToDiagram(diagram)
-				target = semantic2diagram.get(relationship.target)
-			}
-
-			val id = relationship.getLocalName(resource)
-			val edge = newEdge(source, target, id, "augments") => [
-				children += newSElement(SLabel, id + '-label', 'text') => [
-					text = id
-				]
-			]
-			semantic2diagram.get(resource.contents.head).children += edge
-			trace(edge, relationship)
+			val edge1 = newEdge(source, node, id + '_1', 'augments')
+			semantic2diagram.get(resource.contents.head).children += edge1
+			
+			val edge2 = newEdge(node, target, id + '_2', 'augments')
+			semantic2diagram.get(resource.contents.head).children += edge2
+			
+			trace(edge1, relationship)
+			trace(edge2, relationship)
 		])
 	}
 
@@ -332,8 +368,62 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			trace(edge, axiom)
 		])
 	}
+	
+	protected dispatch def void addToDiagram(ScalarProperty scalar, SGraph diagram) {
+		val domain = scalar.domain
+		val range = scalar.range
+		val propertyName = scalar.name
+		
+		postProcesses.add([
+			var propertyLabel = new SLabel([
+				type = 'label:text'
+				id = propertyName + '-label'
+				text = range.name + ': ' + propertyName
+			])
+			
+			var domainElement = semantic2diagram.get(domain)
+			if (domainElement === null) {
+				domain.addToDiagram(diagram)
+				domainElement = semantic2diagram.get(domain)
+			}
+			
+			var oDomainCompartment = domainElement.children
+				.stream()
+				.filter(child | child instanceof SCompartment && child.type === 'comp:comp')
+				.findFirst()
+				
+			var SCompartment compartment
+			if (oDomainCompartment.present) {
+				compartment = oDomainCompartment.get as SCompartment
+				compartment.children += propertyLabel
+			} else {
+				compartment = newSCompartment(domain.getLocalName(resource) + '-compartment', 'comp:comp')
+				compartment.children += propertyLabel
+				domainElement.children += compartment
+			}
+		])
+	}
 
 //---------
+
+	protected def OmlHeaderNode newTaglessHeading(String id, EObject object) {
+		newSElement(OmlHeaderNode, id + '-header', 'classHeader') => [
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				paddingLeft = 8.0
+				paddingRight = 8.0
+				paddingTop = 8.0
+				paddingBottom = 8.0
+			]
+			children = #[
+				new SLabel [ l |
+					l.type = "label:classHeader"
+					l.id = id + '-header-label'
+					l.text = id
+				]
+			]
+		]
+	}
 
 	protected def OmlHeaderNode newHeading(String id, EObject object) {
 		newSElement(OmlHeaderNode, id + '-header', 'classHeader') => [
@@ -392,12 +482,29 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children = new ArrayList<SModelElement>
 		]
 	}
+	
+	protected def SCompartment newSCompartment(String id, String type) {
+		new SCompartment([ c |
+			c.id = id
+			c.layout = 'vbox'
+			c.type = type
+			c.layoutOptions = new LayoutOptions([
+				paddingLeft = 12.0
+				paddingRight = 12.0
+				paddingTop = 12.0
+				paddingBottom = 12.0
+				VGap = 2.0
+			])
+			c.children = new ArrayList<SModelElement>
+		])
+	}
 
 	protected def String findType(SModelElement element) {
 		switch element {
 			OmlGraph: 'graph'
 			SEdge: 'edge'
 			OmlNode: 'node'
+			OmlRelationshipNode: 'node'
 			OmlLabel: 'ylabel'
 			SLabel: 'label'
 			SCompartment: 'comp'

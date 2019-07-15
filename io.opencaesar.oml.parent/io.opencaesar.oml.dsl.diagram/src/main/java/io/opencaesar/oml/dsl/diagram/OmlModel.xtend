@@ -23,6 +23,12 @@ class OmlNode extends SNode implements Traceable {
 }
 
 @Accessors
+class OmlRelationshipNode extends SNode implements Traceable {
+	String trace
+	String cssClass
+}
+
+@Accessors
 class OmlEdge extends SEdge implements Traceable {
 	String trace
 }
