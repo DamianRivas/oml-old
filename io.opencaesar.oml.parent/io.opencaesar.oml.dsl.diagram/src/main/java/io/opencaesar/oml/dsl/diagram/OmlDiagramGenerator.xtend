@@ -27,6 +27,7 @@ import org.eclipse.sprotty.SModelElement
 import org.eclipse.sprotty.SModelRoot
 import org.eclipse.sprotty.xtext.IDiagramGenerator
 import org.eclipse.sprotty.xtext.tracing.ITraceProvider
+import org.eclipse.sprotty.xtext.SIssueMarkerDecorator
 //import io.typefox.sprotty.server.xtext.tracing.Traceable
 import java.util.ArrayList
 import java.util.HashMap
@@ -44,6 +45,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	static val LOG = Logger.getLogger(OmlDiagramGenerator)
 
 	@Inject extension ITraceProvider traceProvider
+	@Inject extension SIssueMarkerDecorator
 
 	var IDiagramState diagramState
 	var Resource resource
@@ -53,20 +55,26 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	override generate(Context context) {
 		LOG.info("Generating diagram for input: '" + resource.URI.lastSegment + "'")
-		val graph = context.resource.contents.head
-		switch (graph) {
-			Terminology: {
-				(context.resource.contents.head as Terminology).toSGraph(context)
-			}
-			Description: {
-				(context.resource.contents.head as Description).toSGraph(context)
-			}
-			default: {
-				throw new IllegalStateException("Unknown graph type")
-			}
-		}
+		(context.resource.contents.head as Graph).toSGraph(context)
 	}
 	
+	def toSGraph(Graph graph, extension Context context) {
+		(new SGraph [
+			id = idCache.uniqueId(graph, graph.name)
+			children = (graph.members.map[toSNode(context)]).toList // TODO
+			
+		])
+	}
+	
+	def toSNode(EObject e, Context context) {
+		new SModelElement
+	}
+	
+	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
+		sElement.trace(element).addIssueMarkers(element, context)
+	}
+	
+	/*
 	override SModelRoot generate(Resource resource, IDiagramState state, CancelIndicator cancelIndicator) {
 		LOG.info("Generating diagram for input: '" + resource.URI.lastSegment + "'")
 		
@@ -490,4 +498,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
 		sElement.trace(element).addIssueMarkers(element, context) 
 	}
+	* 
+	*/
 }
