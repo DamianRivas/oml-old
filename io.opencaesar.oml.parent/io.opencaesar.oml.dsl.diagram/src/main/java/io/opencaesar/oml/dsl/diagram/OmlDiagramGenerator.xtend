@@ -6,17 +6,17 @@ import io.opencaesar.oml.AspectReference
 import io.opencaesar.oml.Concept
 import io.opencaesar.oml.ConceptReference
 import io.opencaesar.oml.Graph
-import io.opencaesar.oml.ReifiedRelationship
 import io.opencaesar.oml.Relationship
+import io.opencaesar.oml.Rule
 import io.opencaesar.oml.Scalar
 import io.opencaesar.oml.ScalarProperty
 import io.opencaesar.oml.ScalarRangeReference
 import io.opencaesar.oml.Structure
+import io.opencaesar.oml.StructuredProperty
 import io.opencaesar.oml.StructureReference
 import io.opencaesar.oml.TermSpecializationAxiom
 import io.opencaesar.oml.Terminology
 import io.opencaesar.oml.TerminologyExtension
-import io.opencaesar.oml.UnreifiedRelationship
 import io.typefox.sprotty.api.IDiagramState
 import io.typefox.sprotty.api.LayoutOptions
 import io.typefox.sprotty.api.SButton
@@ -92,7 +92,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	protected dispatch def void addToDiagram(Terminology terminology, SGraph diagram) {
 		val id = terminology.getLocalName(resource)
-		val node = newSElement(OmlNode, id, 'module') => [
+		val node = newSElement(OmlNodeExpandable, id, 'module') => [
 			layout = 'vbox'
 			layoutOptions = new LayoutOptions [
 				paddingTop = 5.0
@@ -124,7 +124,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		}
 		
 		val id = importedTerminology.getLocalName(resource)
-		val node = newSElement(OmlNode, id, 'module') => [
+		val node = newSElement(OmlNodeExpandable, id, 'module') => [
 			layout = 'hbox'
 			layoutOptions = new LayoutOptions [
 				paddingTop = 5.0
@@ -250,7 +250,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			return
 		}
 		val id = relationship.getLocalName(resource)
-		val node = newSElement(OmlRelationshipNode, id, 'relationship') => [
+		val node = newSElement(OmlNode, id, 'relationship') => [
 			cssClass = 'moduleNode'
 			layout = 'vbox'
 			layoutOptions = new LayoutOptions [
@@ -387,14 +387,14 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				domainElement = semantic2diagram.get(domain)
 			}
 			
-			var oDomainCompartment = domainElement.children
+			var existingDomainCompartment = domainElement.children
 				.stream()
 				.filter(child | child instanceof SCompartment && child.type === 'comp:comp')
 				.findFirst()
 				
 			var SCompartment compartment
-			if (oDomainCompartment.present) {
-				compartment = oDomainCompartment.get as SCompartment
+			if (existingDomainCompartment.present) {
+				compartment = existingDomainCompartment.get as SCompartment
 				compartment.children += propertyLabel
 			} else {
 				compartment = newSCompartment(domain.getLocalName(resource) + '-compartment', 'comp:comp')
@@ -402,6 +402,49 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				domainElement.children += compartment
 			}
 		])
+	}
+	
+	protected dispatch def void addToDiagram(StructuredProperty property, SGraph diagram) {
+		val id = property.getLocalName(resource)
+		val structure = property.range
+		val domain = property.domain
+		val propertyName = property.name
+		
+		postProcesses.add([
+			var propertyLabel = new SLabel([ l |
+				l.type = 'label:text'
+				l.id = id + '-label'
+				l.text = '(R) ' + structure.name + ': ' + propertyName
+			])
+			
+			var domainElement = semantic2diagram.get(domain)
+			if (domainElement === null) {
+				domain.addToDiagram(diagram)
+				domainElement = semantic2diagram.get(domain)
+			}
+			
+			var existingDomainCompartment = domainElement.children
+				.stream()
+				.filter(child | child instanceof SCompartment && child.type === 'comp:comp')
+				.findFirst()
+				
+			var SCompartment compartment
+			if (existingDomainCompartment.present) {
+				compartment = existingDomainCompartment.get as SCompartment
+				compartment.children += propertyLabel
+			} else {
+				compartment = newSCompartment(domain.getLocalName(resource) + '-compartment', 'comp:comp')
+				compartment.children += propertyLabel
+				domainElement.children += compartment
+			}
+		])
+	}
+	
+	protected dispatch def void addToDiagram(Rule rule, SGraph diagram) {
+		val id = rule.getLocalName(resource)
+		rule.antecedent.forEach[ a | 
+			LOG.info('antecedent: ' + a)
+		]
 	}
 
 //---------
@@ -504,7 +547,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			OmlGraph: 'graph'
 			SEdge: 'edge'
 			OmlNode: 'node'
-			OmlRelationshipNode: 'node'
 			OmlLabel: 'ylabel'
 			SLabel: 'label'
 			SCompartment: 'comp'

@@ -19,13 +19,11 @@ class OmlGraph extends SGraph {
 class OmlNode extends SNode implements Traceable {
 	String cssClass
 	String trace
-	Boolean expanded
 }
 
 @Accessors
-class OmlRelationshipNode extends SNode implements Traceable {
-	String trace
-	String cssClass
+class OmlNodeExpandable extends OmlNode implements Traceable {
+	Boolean expanded
 }
 
 @Accessors
