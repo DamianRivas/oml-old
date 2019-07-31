@@ -5,6 +5,7 @@ import org.eclipse.sprotty.xtext.LanguageAwareDiagramServer
 import org.eclipse.sprotty.ServerLayoutKind
 
 class OmlDiagramServerFactory extends DiagramServerFactory {
+	
 	override getDiagramTypes() {
 		#['oml-diagram']
 	}
