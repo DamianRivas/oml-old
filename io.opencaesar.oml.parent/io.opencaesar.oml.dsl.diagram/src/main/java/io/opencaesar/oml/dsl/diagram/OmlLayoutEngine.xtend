@@ -1,9 +1,9 @@
 package io.opencaesar.oml.dsl.diagram
 
-import io.typefox.sprotty.api.SGraph
-import io.typefox.sprotty.api.SModelRoot
-import io.typefox.sprotty.layout.ElkLayoutEngine
-import io.typefox.sprotty.layout.SprottyLayoutConfigurator
+import org.eclipse.sprotty.SGraph
+import org.eclipse.sprotty.SModelRoot
+import org.eclipse.sprotty.layout.ElkLayoutEngine
+import org.eclipse.sprotty.layout.SprottyLayoutConfigurator
 import java.io.ByteArrayOutputStream
 import org.apache.log4j.Logger
 import org.eclipse.elk.alg.layered.options.LayeredOptions

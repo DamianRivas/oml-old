@@ -14,18 +14,19 @@ import io.opencaesar.oml.TermSpecializationAxiom
 import io.opencaesar.oml.Terminology
 import io.opencaesar.oml.TerminologyExtension
 import io.opencaesar.oml.UnreifiedRelationship
-import io.typefox.sprotty.api.IDiagramState
-import io.typefox.sprotty.api.LayoutOptions
-import io.typefox.sprotty.api.SButton
-import io.typefox.sprotty.api.SCompartment
-import io.typefox.sprotty.api.SEdge
-import io.typefox.sprotty.api.SGraph
-import io.typefox.sprotty.api.SLabel
-import io.typefox.sprotty.api.SModelElement
-import io.typefox.sprotty.api.SModelRoot
-import io.typefox.sprotty.server.xtext.IDiagramGenerator
-import io.typefox.sprotty.server.xtext.tracing.ITraceProvider
-import io.typefox.sprotty.server.xtext.tracing.Traceable
+import org.eclipse.sprotty.IDiagramState
+import org.eclipse.sprotty.LayoutOptions
+import org.eclipse.sprotty.SButton
+import org.eclipse.sprotty.SCompartment
+import org.eclipse.sprotty.SEdge
+import org.eclipse.sprotty.SGraph
+import org.eclipse.sprotty.SLabel
+import org.eclipse.sprotty.SModelElement
+import org.eclipse.sprotty.SModelRoot
+import org.eclipse.sprotty.xtext.IDiagramGenerator
+import org.eclipse.sprotty.xtext.tracing.ITraceProvider
+import org.eclipse.sprotty.xtext.SIssueMarkerDecorator
+//import org.eclipse.sprotty.xtext.tracing.Traceable
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -33,7 +34,7 @@ import java.util.Map
 import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.xtext.util.CancelIndicator
+//import org.eclipse.xtext.util.CancelIndicator
 
 import static extension io.opencaesar.oml.Oml.*
 
@@ -42,19 +43,30 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	static val LOG = Logger.getLogger(OmlDiagramGenerator)
 
 	@Inject extension ITraceProvider traceProvider
+	@Inject extension SIssueMarkerDecorator
 
 	var IDiagramState diagramState
 	var Resource resource
+	var Context context
 	
 	var Map<EObject, SModelElement> semantic2diagram
 	var List<()=>void> postProcesses
 	
 	
-	override SModelRoot generate(Resource resource, IDiagramState state, CancelIndicator cancelIndicator) {
-		LOG.info("Generating diagram for input: '" + resource.URI.lastSegment + "'")
+	override SModelRoot generate(Context context) {
 		
-		this.diagramState = state
-		this.resource = resource
+		try {
+			var i = 4/0
+		} catch (Throwable e) {
+			e.printStackTrace()
+			LOG.info("CAUSE : " + e.getCause())
+		}
+
+		LOG.info("Generating diagram for input: '" + context.resource.URI.lastSegment + "'")
+		
+		this.context = context
+		this.diagramState = context.state
+		this.resource = context.resource
 		
 		semantic2diagram = new HashMap
 		postProcesses = new ArrayList
@@ -98,7 +110,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			expanded = diagramState.currentModel.type == 'NONE' || diagramState.expandedElements.contains(id)
 		]
 		diagram.children += node
-		trace(node, terminology)
+		node.traceAndMark(terminology, this.context)
+//		trace(node, terminology)
 		
 		if (node.expanded) {
 			diagramState.expandedElements.add(id)	
@@ -402,11 +415,15 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		}
 	}
 
-	protected def void trace(SModelElement element, EObject object) {
-		if (element instanceof Traceable) {
-			traceProvider.trace(element, object)
-		}
-		semantic2diagram.put(object, element)
+//	protected def void trace(SModelElement element, EObject object) {
+//		if (element instanceof Traceable) {
+//			traceProvider.trace(element, object)
+//		}
+//		semantic2diagram.put(object, element)
+//	}
+	
+	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
+		sElement.trace(element).addIssueMarkers(element, context) 
 	}
 
 }

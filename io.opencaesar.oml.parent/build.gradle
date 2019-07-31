@@ -23,8 +23,8 @@ subprojects {
 	    codegenEcore: '2.11.0',
 	    mwe2: '2.9.0.201605261059',
 	    lsp4j: '0.7.0',
-	    elk: '0.3.0',
-	    sprotty: '0.4.0',
+	    elk: '0.5.0',
+	    sprotty: '0.6.0',
 	    junitJupiter: '5.1.0',
 	    gson: '2.8.2',
 	    guava: '21.0'
