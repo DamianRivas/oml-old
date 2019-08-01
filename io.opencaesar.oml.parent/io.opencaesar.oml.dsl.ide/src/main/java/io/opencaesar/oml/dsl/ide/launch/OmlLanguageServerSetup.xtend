@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.launch
 
 import com.google.gson.GsonBuilder
 import org.eclipse.sprotty.xtext.launch.DiagramLanguageServerSetup

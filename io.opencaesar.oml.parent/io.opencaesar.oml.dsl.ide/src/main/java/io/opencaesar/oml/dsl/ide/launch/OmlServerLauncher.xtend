@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.launch
 
 import com.google.gson.GsonBuilder
 import com.google.inject.Guice
@@ -44,11 +44,11 @@ class OmlServerLauncher extends DiagramServerLauncher {
 		new OmlServerLauncher().run(args)
 		
 		// Do a manual setup that includes the Oml diagram module
-		new OmlIdeSetup {
-			override createInjector() {
-				Guice.createInjector(Modules2.mixin(new OmlRuntimeModule, new OmlIdeModule, new OmlDiagramModule))
-			}
-		}.createInjectorAndDoEMFRegistration()
+//		new OmlIdeSetup {
+//			override createInjector() {
+//				Guice.createInjector(Modules2.mixin(new OmlRuntimeModule, new OmlIdeModule, new OmlDiagramModule))
+//			}
+//		}.createInjectorAndDoEMFRegistration()
 	}
 	
 //	def static void main(String[] args) {

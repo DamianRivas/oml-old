@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.diagram
 
 import com.google.inject.Inject
 import org.eclipse.sprotty.IDiagramServer

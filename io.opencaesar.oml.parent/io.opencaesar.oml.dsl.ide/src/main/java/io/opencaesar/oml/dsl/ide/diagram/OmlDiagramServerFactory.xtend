@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.diagram
 
 import org.eclipse.sprotty.xtext.DiagramServerFactory
 import org.eclipse.sprotty.xtext.LanguageAwareDiagramServer

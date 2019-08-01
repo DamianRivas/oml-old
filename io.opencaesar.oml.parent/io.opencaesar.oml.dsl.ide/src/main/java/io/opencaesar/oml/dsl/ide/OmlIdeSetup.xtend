@@ -7,6 +7,7 @@ import com.google.inject.Guice
 import io.opencaesar.oml.dsl.OmlRuntimeModule
 import io.opencaesar.oml.dsl.OmlStandaloneSetup
 import org.eclipse.xtext.util.Modules2
+import io.opencaesar.oml.dsl.ide.diagram.OmlDiagramModule
 
 /**
  * Initialization support for running Xtext languages as language servers.
@@ -14,7 +15,7 @@ import org.eclipse.xtext.util.Modules2
 class OmlIdeSetup extends OmlStandaloneSetup {
 
 	override createInjector() {
-		Guice.createInjector(Modules2.mixin(new OmlRuntimeModule, new OmlIdeModule))
+		Guice.createInjector(Modules2.mixin(new OmlRuntimeModule, new OmlIdeModule, new OmlDiagramModule))
 	}
 	
 }

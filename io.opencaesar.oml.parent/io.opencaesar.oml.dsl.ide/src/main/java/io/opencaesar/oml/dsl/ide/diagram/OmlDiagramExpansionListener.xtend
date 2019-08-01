@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.diagram
 
 import org.eclipse.sprotty.Action
 import org.eclipse.sprotty.IDiagramExpansionListener
@@ -10,8 +10,6 @@ class OmlDiagramExpansionListener implements IDiagramExpansionListener {
 	override expansionChanged(Action action, IDiagramServer server) {
 		
 		if (server instanceof LanguageAwareDiagramServer) {
-//			val languageServerExtension = server.languageServerExtension
-//			languageServerExtension.updateDiagram(server)
 			server.diagramLanguageServer.diagramUpdater.updateDiagram(server)
 		}
 	}

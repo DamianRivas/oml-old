@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.diagram
 
 import com.google.inject.Inject
 import io.opencaesar.oml.Aspect
@@ -55,12 +55,12 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	override SModelRoot generate(Context context) {
 		
-		try {
-			var i = 4/0
-		} catch (Throwable e) {
-			e.printStackTrace()
-			LOG.info("CAUSE : " + e.getCause())
-		}
+//		try {
+//			var i = 4/0
+//		} catch (Throwable e) {
+//			e.printStackTrace()
+//			LOG.info("CAUSE : " + e.getCause())
+//		}
 
 		LOG.info("Generating diagram for input: '" + context.resource.URI.lastSegment + "'")
 		
@@ -79,7 +79,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		]
 		
 		resource.allContents.forEach[object|
-			object.addToDiagram(diagram)
+			if (semantic2diagram.get(object) === null)
+				object.addToDiagram(diagram)
 		]
 		
 		postProcesses.forEach[process|process.apply]
@@ -114,7 +115,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 //		trace(node, terminology)
 		
 		if (node.expanded) {
-			diagramState.expandedElements.add(id)	
+			diagramState.expandedElements.add(id)
 		}
 	}
 
@@ -142,9 +143,13 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			expanded = false
 		]
 		diagram.children += node
-		trace(node, importedTerminology)
+		node.traceAndMark(ext, context)
 		
 		val importingTerminology = ext.graph as Terminology
+		// TODO: BUG
+		if (semantic2diagram.get(importingTerminology) === null)
+			importingTerminology.addToDiagram(diagram)
+			
 		val edge = newEdge(semantic2diagram.get(importingTerminology), node, "composition") => [
 			children += newSElement(SLabel, id + '-extends-label', 'text') => [
 				text = 'extends'
@@ -168,7 +173,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, aspect)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-		trace(node, aspect)
+//		trace(node, aspect)
+		node.traceAndMark(aspect, context)
 	}
 
 	protected dispatch def void addToDiagram(AspectReference reference, SGraph diagram) {
@@ -191,7 +197,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, concept)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-		trace(node, concept)
+		node.traceAndMark(concept, context)
+//		trace(node, concept)
 	}
 
 	protected dispatch def void addToDiagram(ConceptReference reference, SGraph diagram) {
@@ -214,7 +221,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, structure)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-		trace(node, structure)
+//		trace(node, structure)
+		node.traceAndMark(structure, context)
 	}
 
 	protected dispatch def void addToDiagram(StructureReference reference, SGraph diagram) {
@@ -237,7 +245,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, scalar)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-		trace(node, scalar)
+//		trace(node, scalar)
+		node.traceAndMark(scalar, context)
 	}
 
 	protected dispatch def void addToDiagram(ScalarRangeReference reference, SGraph diagram) {
@@ -423,6 +432,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 //	}
 	
 	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
+		semantic2diagram.put(element, sElement)
 		sElement.trace(element).addIssueMarkers(element, context) 
 	}
 

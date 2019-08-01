@@ -1,4 +1,4 @@
-package io.opencaesar.oml.dsl.diagram
+package io.opencaesar.oml.dsl.ide.diagram
 
 import org.eclipse.sprotty.Layouting
 import org.eclipse.sprotty.SCompartment
@@ -18,13 +18,13 @@ class OmlGraph extends SGraph {
 @Accessors
 class OmlNode extends SNode {
 	String cssClass
-	String trace
+//	String trace
 	Boolean expanded
 }
 
 @Accessors
 class OmlEdge extends SEdge {
-	String trace
+//	String trace
 }
 
 @Accessors
@@ -34,7 +34,7 @@ class OmlHeaderNode extends SCompartment {
 
 @Accessors
 class OmlLabel extends SLabel {
-	String trace
+//	String trace
 }
 
 @Accessors 
