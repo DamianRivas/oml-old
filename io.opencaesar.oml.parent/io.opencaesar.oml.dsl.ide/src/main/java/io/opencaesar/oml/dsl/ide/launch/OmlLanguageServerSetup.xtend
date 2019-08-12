@@ -11,10 +11,7 @@ import org.eclipse.sprotty.server.json.EnumTypeAdapter
 import org.eclipse.xtext.ide.server.ServerModule
 import org.eclipse.sprotty.xtext.ls.SyncDiagramServerModule
 import org.eclipse.xtext.util.Modules2
-import io.opencaesar.oml.dsl.ide.OmlIdeSetup
-import com.google.inject.Guice
-import io.opencaesar.oml.dsl.OmlRuntimeModule
-import io.opencaesar.oml.dsl.ide.OmlIdeModule
+import io.opencaesar.oml.dsl.ide.diagram.FilterAction
 
 class OmlLanguageServerSetup extends DiagramLanguageServerSetup {
 	override setupLanguages() {
@@ -23,8 +20,10 @@ class OmlLanguageServerSetup extends DiagramLanguageServerSetup {
 	}
 	
 	override configureGson(GsonBuilder gsonBuilder) {
+		val factory = new ActionTypeAdapter.Factory()
+		factory.addActionKind(FilterAction.KIND, FilterAction)
 		gsonBuilder
-			.registerTypeAdapterFactory(new ActionTypeAdapter.Factory)
+			.registerTypeAdapterFactory(factory)
 			.registerTypeAdapterFactory(new EnumTypeAdapter.Factory)
 	}
 	

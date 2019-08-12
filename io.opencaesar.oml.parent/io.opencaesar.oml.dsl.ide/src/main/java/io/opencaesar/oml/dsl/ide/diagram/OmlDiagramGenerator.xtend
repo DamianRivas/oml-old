@@ -37,6 +37,13 @@ import org.eclipse.emf.ecore.resource.Resource
 //import org.eclipse.xtext.util.CancelIndicator
 
 import static extension io.opencaesar.oml.Oml.*
+import io.opencaesar.oml.StructuredProperty
+import io.opencaesar.oml.ScalarProperty
+import io.opencaesar.oml.Rule
+import io.opencaesar.oml.Predicate
+import io.opencaesar.oml.DirectionalRelationshipPredicate
+import io.opencaesar.oml.ReifiedRelationshipPredicate
+import io.opencaesar.oml.EntityPredicate
 
 class OmlDiagramGenerator implements IDiagramGenerator {
 	
@@ -52,21 +59,15 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	var Map<EObject, SModelElement> semantic2diagram
 	var List<()=>void> postProcesses
 	
-	
-	override SModelRoot generate(Context context) {
-		
-//		try {
-//			var i = 4/0
-//		} catch (Throwable e) {
-//			e.printStackTrace()
-//			LOG.info("CAUSE : " + e.getCause())
-//		}
 
+	override SModelRoot generate(Context context) {
 		LOG.info("Generating diagram for input: '" + context.resource.URI.lastSegment + "'")
 		
 		this.context = context
 		this.diagramState = context.state
 		this.resource = context.resource
+		
+		context.state.options
 		
 		semantic2diagram = new HashMap
 		postProcesses = new ArrayList
@@ -78,10 +79,35 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			]
 		]
 		
-		resource.allContents.forEach[object|
-			if (semantic2diagram.get(object) === null)
-				object.addToDiagram(diagram)
-		]
+		resource.allContents.head.addToDiagram(diagram)
+		
+		val fQuery = context.state.options.get("filterAction")
+		
+		// If there is a searchbox query, attempt to filter out the queried element. Otherwise,
+		// display the entire graph.
+		if (fQuery !== null) {
+			val term = resource.allContents.findFirst[ el |
+				if (el instanceof Concept)
+					return el.name == fQuery
+				else
+					false
+			]
+			
+			if (term !== null) {
+				term.addToDiagram(diagram)
+				
+			} else {
+				resource.allContents.forEach[object|
+					if (semantic2diagram.get(object) === null)
+						object.addToDiagram(diagram)
+				]
+			}
+		} else {
+			resource.allContents.forEach[object|
+				if (semantic2diagram.get(object) === null)
+					object.addToDiagram(diagram)
+			]
+		}
 		
 		postProcesses.forEach[process|process.apply]
 
@@ -146,7 +172,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		node.traceAndMark(ext, context)
 		
 		val importingTerminology = ext.graph as Terminology
-		// TODO: BUG
+		// TODO: Check if necessary
 		if (semantic2diagram.get(importingTerminology) === null)
 			importingTerminology.addToDiagram(diagram)
 			
@@ -173,7 +199,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, aspect)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-//		trace(node, aspect)
 		node.traceAndMark(aspect, context)
 	}
 
@@ -198,7 +223,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		]
 		semantic2diagram.get(resource.contents.head).children += node
 		node.traceAndMark(concept, context)
-//		trace(node, concept)
 	}
 
 	protected dispatch def void addToDiagram(ConceptReference reference, SGraph diagram) {
@@ -221,7 +245,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, structure)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-//		trace(node, structure)
 		node.traceAndMark(structure, context)
 	}
 
@@ -245,7 +268,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			children += newHeading(id, scalar)
 		]
 		semantic2diagram.get(resource.contents.head).children += node
-//		trace(node, scalar)
 		node.traceAndMark(scalar, context)
 	}
 
@@ -253,6 +275,41 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		if (reference.scalar !== null) {
 			reference.scalar.addToDiagram(diagram)
 		}
+	}
+	
+	protected dispatch def void addToDiagram(ScalarProperty scalar, SGraph diagram) {
+		val domain = scalar.domain
+		val range = scalar.range
+		val propertyName = scalar.name
+		
+		postProcesses.add([
+			var propertyLabel = new SLabel([
+				type = 'label:text'
+				id = propertyName + '-label'
+				text = propertyName + ': ' + range.name
+			])
+			
+			var domainElement = semantic2diagram.get(domain)
+			if (domainElement === null) {
+				domain.addToDiagram(diagram)
+				domainElement = semantic2diagram.get(domain)
+			}
+			
+			var existingDomainCompartment = domainElement.children
+				.stream()
+				.filter(child | child instanceof SCompartment && child.type === 'comp:comp')
+				.findFirst()
+				
+			var SCompartment compartment
+			if (existingDomainCompartment.present) {
+				compartment = existingDomainCompartment.get as SCompartment
+				compartment.children += propertyLabel
+			} else {
+				compartment = newSCompartment(domain.getLocalName(resource) + '-compartment', 'comp:comp')
+				compartment.children += propertyLabel
+				domainElement.children += compartment
+			}
+		])
 	}
 
 	protected dispatch def void addToDiagram(ReifiedRelationship relationship, SGraph diagram) {
@@ -313,8 +370,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		])
 	}
 
-	protected dispatch def void addToDiagram(TermSpecializationAxiom axiom, SGraph diagram) {
-		val specializingTerm = axiom.specializingTerm
+	protected dispatch def void addToDiagram(TermSpecializationAxiom axiom, SGraph diagram) {		val specializingTerm = axiom.specializingTerm
 		val specializedTerm = axiom.specializedTerm
 		
 		if (!(specializingTerm instanceof Concept || specializingTerm instanceof Aspect)) {
@@ -339,8 +395,90 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			trace(edge, axiom)
 		])
 	}
+	
+	protected dispatch def void addToDiagram(StructuredProperty property, SGraph diagram) {
+		val id = property.getLocalName(resource)
+		val structure = property.range
+		val domain = property.domain
+		val propertyName = property.name
+		
+		postProcesses.add([
+			var propertyLabel = new SLabel([ l |
+				l.type = 'label:text'
+				l.id = id + '-label'
+				l.text = '(R) ' + structure.name + ': ' + propertyName
+			])
+			
+			var domainElement = semantic2diagram.get(domain)
+			if (domainElement === null) {
+				domain.addToDiagram(diagram)
+				domainElement = semantic2diagram.get(domain)
+			}
+			
+			var existingDomainCompartment = domainElement.children
+				.stream()
+				.filter(child | child instanceof SCompartment && child.type === 'comp:comp')
+				.findFirst()
+				
+			var SCompartment compartment
+			if (existingDomainCompartment.present) {
+				compartment = existingDomainCompartment.get as SCompartment
+				compartment.children += propertyLabel
+			} else {
+				compartment = newSCompartment(domain.getLocalName(resource) + '-compartment', 'comp:comp')
+				compartment.children += propertyLabel
+				domainElement.children += compartment
+			}
+		])
+	}
+	
+	protected dispatch def void addToDiagram(Rule rule, SGraph diagram) {
+		val id = rule.getLocalName(resource)
+		val node = newSElement(OmlNode, id, 'relationship') => [
+			cssClass = 'moduleNode'
+			layout = 'vbox'
+			layoutOptions = new LayoutOptions [
+				paddingLeft = 0.0
+				paddingRight = 0.0
+				paddingTop = 0.0
+				paddingBottom = 0.0
+			]
+			children += newTaglessHeading(id, rule)
+		]
+		
+		val antecedentCompartment = newSCompartment(id + '-antecedentCompartment', 'comp:comp')
+		rule.antecedent.forEach[ a, index |
+			antecedentCompartment.children += new SLabel([ l |
+				l.type = 'label:text'
+				l.id = rule.name + '-antecedent-label-' + index
+				l.text = a.renderPredicate
+			])
+		]
+		node.children += antecedentCompartment
+		
+		val consequent = rule.consequent
+		val consequentCompartment = newSCompartment(id + '-consequentCompartment', 'comp:comp')
+		consequentCompartment.children += new SLabel[
+			type = 'label:text'
+			it.id = rule.name + '-consequent-label'
+			text = consequent.relationshipDirection.name + '(' + consequent.variable1 + ', ' + consequent.variable2 + ')'
+		]
+		node.children += consequentCompartment
+		
+		semantic2diagram.get(resource.contents.head).children += node
+		trace(node, rule)
+	}
 
 //---------
+
+	protected def String renderPredicate(Predicate predicate) {
+		switch predicate {
+			DirectionalRelationshipPredicate: predicate.relationshipDirection.name + '(' + predicate.variable1 + ', ' + predicate.variable2 + ')'
+			ReifiedRelationshipPredicate: predicate.relationship.name + '(' + predicate.kind.toString + ', ' + predicate.variable1 + ', ' + predicate.variable2 + ')'
+			EntityPredicate: predicate.entity.name + '(' + predicate.variable + ')'
+			default: ''
+		}
+	}
 
 	protected def OmlHeaderNode newHeading(String id, EObject object) {
 		newSElement(OmlHeaderNode, id + '-header', 'classHeader') => [
@@ -378,6 +516,25 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		]
 	}
 
+	protected def OmlHeaderNode newTaglessHeading(String id, EObject object) {
+		newSElement(OmlHeaderNode, id + '-header', 'classHeader') => [
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				paddingLeft = 8.0
+				paddingRight = 8.0
+				paddingTop = 8.0
+				paddingBottom = 8.0
+			]
+			children = #[
+				new SLabel [ l |
+					l.type = "label:classHeader"
+					l.id = id + '-header-label'
+					l.text = id
+				]
+			]
+		]
+	}
+
 	protected def SEdge newEdge(SModelElement fromElement, SModelElement toElement, String edgeType) {
 		val SEdge edge = newSElement(SEdge, fromElement.id + '2' + toElement.id, edgeType)
 		edge.sourceId = fromElement.id
@@ -398,6 +555,22 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			type = findType(it) + if (typeStr !== null) ':' + typeStr else ''
 			children = new ArrayList<SModelElement>
 		]
+	}
+	
+	protected def SCompartment newSCompartment(String id, String type) {
+		new SCompartment([
+			it.id = id
+			layout = 'vbox'
+			it.type = type
+			layoutOptions = new LayoutOptions([
+				paddingLeft = 12.0
+				paddingRight = 12.0
+				paddingTop = 12.0
+				paddingBottom = 12.0
+				VGap = 2.0
+			])
+			children = new ArrayList<SModelElement>
+		])
 	}
 
 	protected def String findType(SModelElement element) {
@@ -423,13 +596,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			default: ''
 		}
 	}
-
-//	protected def void trace(SModelElement element, EObject object) {
-//		if (element instanceof Traceable) {
-//			traceProvider.trace(element, object)
-//		}
-//		semantic2diagram.put(object, element)
-//	}
 	
 	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
 		semantic2diagram.put(element, sElement)

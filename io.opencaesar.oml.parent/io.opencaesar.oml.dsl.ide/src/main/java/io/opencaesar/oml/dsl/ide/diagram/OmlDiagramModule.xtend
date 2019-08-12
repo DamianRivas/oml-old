@@ -1,12 +1,13 @@
 package io.opencaesar.oml.dsl.ide.diagram
 
 import org.eclipse.sprotty.xtext.IDiagramGenerator
-//import org.eclipse.sprotty.xtext.ide.IdeDiagramModule
 import org.eclipse.sprotty.xtext.DefaultDiagramModule
-//import org.eclipse.sprotty.xtext.ide.IdeLanguageServerExtension
 
-//class OmlDiagramModule extends IdeDiagramModule {
 class OmlDiagramModule extends DefaultDiagramModule {
+	
+	override bindIDiagramServer() {
+		OmlDiagramServer
+	}
 	
 	override bindIDiagramServerFactory() {
 		OmlDiagramServerFactory
@@ -27,8 +28,4 @@ class OmlDiagramModule extends DefaultDiagramModule {
 	override bindIDiagramExpansionListener() {
 		OmlDiagramExpansionListener
 	}
-	
-//	def Class<? extends IdeLanguageServerExtension> bindIdeLanguageServerExtension() {
-//		OmlLanguageServerExtension
-//	}
 }

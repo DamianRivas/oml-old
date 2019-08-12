@@ -7,24 +7,20 @@ import org.eclipse.sprotty.SGraph
 import org.eclipse.sprotty.SLabel
 import org.eclipse.sprotty.SNode
 import org.eclipse.sprotty.SShapeElement
-//import io.typefox.sprotty.server.xtext.tracing.Traceable
 import org.eclipse.xtend.lib.annotations.Accessors
 
 @Accessors
 class OmlGraph extends SGraph {
-	
 }
 
 @Accessors
 class OmlNode extends SNode {
 	String cssClass
-//	String trace
 	Boolean expanded
 }
 
 @Accessors
 class OmlEdge extends SEdge {
-//	String trace
 }
 
 @Accessors
@@ -34,7 +30,6 @@ class OmlHeaderNode extends SCompartment {
 
 @Accessors
 class OmlLabel extends SLabel {
-//	String trace
 }
 
 @Accessors 
