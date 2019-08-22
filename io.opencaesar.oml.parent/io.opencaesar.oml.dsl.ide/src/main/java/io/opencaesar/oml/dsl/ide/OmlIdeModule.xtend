@@ -9,6 +9,8 @@ import io.opencaesar.oml.dsl.ide.symbols.OmlHierarchicalDocumentSymbolService
 import org.eclipse.xtext.ide.server.symbol.DocumentSymbolMapper.DocumentSymbolKindProvider
 import org.eclipse.xtext.ide.server.symbol.DocumentSymbolMapper.DocumentSymbolNameProvider
 import org.eclipse.xtext.ide.server.symbol.HierarchicalDocumentSymbolService
+import org.eclipse.xtext.ide.server.codeActions.ICodeActionService
+import io.opencaesar.oml.dsl.ide.server.codeActions.OmlCodeActionService
 
 /**
  * Use this class to register ide components.
@@ -25,6 +27,10 @@ class OmlIdeModule extends AbstractOmlIdeModule {
 
 	def Class<? extends DocumentSymbolNameProvider> bindDocumentSymbolNameProvider() {
 		return OmlDocumentSymbolNameProvider;
+	}
+	
+	def Class<? extends ICodeActionService> bindICodeActionService() {
+		OmlCodeActionService
 	}
 
 }

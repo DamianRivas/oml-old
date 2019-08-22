@@ -26,7 +26,6 @@ import org.eclipse.sprotty.SModelRoot
 import org.eclipse.sprotty.xtext.IDiagramGenerator
 import org.eclipse.sprotty.xtext.tracing.ITraceProvider
 import org.eclipse.sprotty.xtext.SIssueMarkerDecorator
-//import org.eclipse.sprotty.xtext.tracing.Traceable
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -34,7 +33,6 @@ import java.util.Map
 import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
-//import org.eclipse.xtext.util.CancelIndicator
 
 import static extension io.opencaesar.oml.Oml.*
 import io.opencaesar.oml.StructuredProperty
@@ -44,6 +42,11 @@ import io.opencaesar.oml.Predicate
 import io.opencaesar.oml.DirectionalRelationshipPredicate
 import io.opencaesar.oml.ReifiedRelationshipPredicate
 import io.opencaesar.oml.EntityPredicate
+import io.opencaesar.oml.EntityRestrictionAxiom
+import io.opencaesar.oml.RelationshipRestrictionAxiom
+import io.opencaesar.oml.NamedElementReference
+import io.opencaesar.oml.UniversalRelationshipRestrictionAxiom
+import io.opencaesar.oml.NamedElement
 
 class OmlDiagramGenerator implements IDiagramGenerator {
 	
@@ -66,9 +69,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		this.context = context
 		this.diagramState = context.state
 		this.resource = context.resource
-		
-		context.state.options
-		
+				
 		semantic2diagram = new HashMap
 		postProcesses = new ArrayList
 		
@@ -79,6 +80,9 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 			]
 		]
 		
+		/* Try this when debugging the popup */
+		 diagram.traceAndMark(resource.allContents.head, this.context)
+		
 		resource.allContents.head.addToDiagram(diagram)
 		
 		val fQuery = context.state.options.get("filterAction")
@@ -87,7 +91,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		// display the entire graph.
 		if (fQuery !== null) {
 			val term = resource.allContents.findFirst[ el |
-				if (el instanceof Concept)
+				if (el instanceof NamedElement)
 					return el.name == fQuery
 				else
 					false
@@ -332,7 +336,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 
 			val id = relationship.getLocalName(resource)
 			val edge = newEdge(source, target, id, "augments") => [
-				children += newSElement(SLabel, id + '-label', 'text') => [
+				children += newSElement(SLabel, id + '-label', 'relationship') => [
 					text = id
 				]
 			]
@@ -370,7 +374,8 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		])
 	}
 
-	protected dispatch def void addToDiagram(TermSpecializationAxiom axiom, SGraph diagram) {		val specializingTerm = axiom.specializingTerm
+	protected dispatch def void addToDiagram(TermSpecializationAxiom axiom, SGraph diagram) {
+		val specializingTerm = axiom.specializingTerm
 		val specializedTerm = axiom.specializedTerm
 		
 		if (!(specializingTerm instanceof Concept || specializingTerm instanceof Aspect)) {
@@ -434,7 +439,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	protected dispatch def void addToDiagram(Rule rule, SGraph diagram) {
 		val id = rule.getLocalName(resource)
-		val node = newSElement(OmlNode, id, 'relationship') => [
+		val node = newSElement(OmlNode, id, 'class') => [
 			cssClass = 'moduleNode'
 			layout = 'vbox'
 			layoutOptions = new LayoutOptions [
@@ -466,7 +471,38 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		node.children += consequentCompartment
 		
 		semantic2diagram.get(resource.contents.head).children += node
-		trace(node, rule)
+		node.traceAndMark(rule, context)
+	}
+	
+	protected dispatch def void addToDiagram(EntityRestrictionAxiom restriction, SGraph diagram) {
+		if (restriction instanceof RelationshipRestrictionAxiom) {
+			val id = restriction.relationshipDirection.name + '-' + restriction.restrictedEntity.getLocalName(resource) + '-restriction' // TODO
+			postProcesses.add([
+				var source = findInDiagram(restriction.eContainer)
+				if (source === null) {
+					restriction.eContainer.addToDiagram(diagram)
+					source = findInDiagram(restriction.eContainer)
+				}
+				
+				var target = findInDiagram(restriction.restrictedTo)
+				if (target === null) {
+					restriction.restrictedTo.addToDiagram(diagram)
+					target = findInDiagram(restriction.restrictedTo)
+				}
+				
+				val notation = if (restriction instanceof UniversalRelationshipRestrictionAxiom) '\u2200' else '\u2203'
+				
+				val edge = newEdge(source, target, id + '-edge', 'restricts')
+				edge.children += new SLabel[
+					it.id = id + '-restriction-label'
+					type = 'label:restricts'
+					text = notation + restriction.relationshipDirection.name
+				]
+				
+				semantic2diagram.get(resource.contents.head).children += edge
+				edge.traceAndMark(restriction, context)
+			])
+		}
 	}
 
 //---------
@@ -599,7 +635,21 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	def <T extends SModelElement> T traceAndMark(T sElement, EObject element, Context context) {
 		semantic2diagram.put(element, sElement)
-		sElement.trace(element).addIssueMarkers(element, context) 
+		sElement.trace(element).addIssueMarkers(element, context)
 	}
 
+	protected def findInDiagram(EObject object) {
+		if (object instanceof NamedElementReference) {
+			switch object {
+				AspectReference: semantic2diagram.get(object.aspect)
+				ConceptReference: semantic2diagram.get(object.concept)
+				default: {
+					LOG.error('ERROR: findInDiagram failed to find instance of object in the diagram.')
+					null
+				}
+			}
+		} else {
+			semantic2diagram.get(object)
+		}
+	}
 }

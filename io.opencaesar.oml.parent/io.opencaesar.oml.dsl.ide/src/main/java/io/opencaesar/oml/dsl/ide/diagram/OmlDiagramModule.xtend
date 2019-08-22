@@ -2,6 +2,8 @@ package io.opencaesar.oml.dsl.ide.diagram
 
 import org.eclipse.sprotty.xtext.IDiagramGenerator
 import org.eclipse.sprotty.xtext.DefaultDiagramModule
+import org.eclipse.xtext.ide.server.codeActions.ICodeActionService
+import io.opencaesar.oml.dsl.ide.server.codeActions.OmlCodeActionService
 
 class OmlDiagramModule extends DefaultDiagramModule {
 	
@@ -21,11 +23,15 @@ class OmlDiagramModule extends DefaultDiagramModule {
 		OmlDiagramGenerator
 	}
 	
-	override bindIPopupModelFactory() {
-		OmlPopupModelFactory
-	}
+//	override bindIPopupModelFactory() {
+//		OmlPopupModelFactory
+//	}
 	
 	override bindIDiagramExpansionListener() {
 		OmlDiagramExpansionListener
+	}
+	
+	def Class<? extends ICodeActionService> bindICodeActionService() {
+		OmlCodeActionService
 	}
 }
