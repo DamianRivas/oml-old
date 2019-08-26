@@ -289,7 +289,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		postProcesses.add([
 			var propertyLabel = new SLabel([
 				type = 'label:text'
-				id = propertyName + '-label'
+				id = this.context.idCache.uniqueId(scalar, domain.name + '-' + scalar.name)
 				text = propertyName + ': ' + range.name
 			])
 			
@@ -402,10 +402,10 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	}
 	
 	protected dispatch def void addToDiagram(StructuredProperty property, SGraph diagram) {
-		val id = property.getLocalName(resource)
 		val structure = property.range
 		val domain = property.domain
 		val propertyName = property.name
+		val id = this.context.idCache.uniqueId(property, domain.name + '-' + property.name)
 		
 		postProcesses.add([
 			var propertyLabel = new SLabel([ l |
@@ -543,11 +543,11 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 						]
 					]
 				],
-				new SLabel [ l |
-					l.type = "label:classHeader"
+				(new SLabel [ l |
+					l.type = "label:editable"
 					l.id = id + '-header-label'
 					l.text = id
-				]
+				]).trace(object)
 			]
 		]
 	}
