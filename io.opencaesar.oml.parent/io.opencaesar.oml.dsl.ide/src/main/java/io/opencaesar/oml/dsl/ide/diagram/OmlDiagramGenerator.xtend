@@ -139,7 +139,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		]
 		diagram.children += node
 		node.traceAndMark(terminology, this.context)
-//		trace(node, terminology)
 		
 		if (node.expanded) {
 			diagramState.expandedElements.add(id)
@@ -501,7 +500,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		}
 	}
 
-//---------
+//------------------- HELPERS
 
 	protected def String renderPredicate(Predicate predicate) {
 		switch predicate {
