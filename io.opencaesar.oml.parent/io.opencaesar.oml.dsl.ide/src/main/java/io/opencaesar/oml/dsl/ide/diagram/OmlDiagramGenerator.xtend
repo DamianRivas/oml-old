@@ -79,10 +79,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 				HGap = 10.0
 			]
 		]
-		
-		/* Try this when debugging the popup */
-		 diagram.traceAndMark(resource.allContents.head, this.context)
-		
+				
 		resource.allContents.head.addToDiagram(diagram)
 		
 		val fQuery = context.state.options.get("filterAction")
@@ -176,7 +173,6 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 		node.traceAndMark(ext, context)
 		
 		val importingTerminology = ext.graph as Terminology
-		// TODO: Check if necessary
 		if (semantic2diagram.get(importingTerminology) === null)
 			importingTerminology.addToDiagram(diagram)
 			
@@ -476,7 +472,7 @@ class OmlDiagramGenerator implements IDiagramGenerator {
 	
 	protected dispatch def void addToDiagram(EntityRestrictionAxiom restriction, SGraph diagram) {
 		if (restriction instanceof RelationshipRestrictionAxiom) {
-			val id = restriction.relationshipDirection.name + '-' + restriction.restrictedEntity.getLocalName(resource) + '-restriction' // TODO
+			val id = restriction.relationshipDirection.name + '-' + restriction.restrictedEntity.getLocalName(resource) + '-restriction'
 			postProcesses.add([
 				var source = findInDiagram(restriction.eContainer)
 				if (source === null) {
